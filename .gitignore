@@ -1,24 +1,15 @@
-# Virtual Environment
 venv/
-.env/
-
-# Python
 __pycache__/
 *.py[cod]
-*.pyc
 
-# Django
+.env
 db.sqlite3
+
 media/
 staticfiles/
 
-# IDE
 .vscode/
 .idea/
 
-# OS
-Thumbs.db
-.DS_Store
-
-# Logs
-*.log
+.pytest_cache/
+.coverage

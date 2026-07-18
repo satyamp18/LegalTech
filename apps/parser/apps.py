@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class RiskEngineConfig(AppConfig):
+class ParserConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'risk_engine'
+    name = 'apps.parser'

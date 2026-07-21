@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Register | LexVision{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center align-items-center">
+
+        <!-- Left Section -->
+        <div class="col-lg-5 d-none d-lg-block">
+
+            <h1 class="display-5 fw-bold text-primary">
+                LexVision
+            </h1>
+
+            <p class="lead mt-3">
+                AI-Powered Contract Parsing & Risk Extraction Engine
+            </p>
+
+            <hr>
+
+            <ul class="list-unstyled fs-5">
+
+                <li class="mb-3">✔ Upload Legal Contracts</li>
+                <li class="mb-3">✔ AI Clause Detection</li>
+                <li class="mb-3">✔ Risk Analysis</li>
+                <li class="mb-3">✔ Automated Reports</li>
+
+            </ul>
+
+        </div>
+
+        <!-- Register Card -->
+        <div class="col-lg-6">
+
+            <div class="card shadow-lg border-0 rounded-4">
+
+                <div class="card-body p-5">
+
+                    <h2 class="text-center mb-4">
+                        Create Account
+                    </h2>
+
+                    <form method="POST">
+
+                        {% csrf_token %}
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+                                <label>First Name</label>
+                                {{ form.first_name }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label>Last Name</label>
+                                {{ form.last_name }}
+                            </div>
+
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Username</label>
+                            {{ form.username }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Email</label>
+                            {{ form.email }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Password</label>
+                            {{ form.password1 }}
+                        </div>
+
+                        <div class="mb-4">
+                            <label>Confirm Password</label>
+                            {{ form.password2 }}
+                        </div>
+
+                        <button class="btn btn-primary w-100">
+                            Register
+                        </button>
+
+                    </form>
+
+                    <hr>
+
+                    <p class="text-center">
+
+                        Already have an account?
+
+                        <a href="#">
+                            Login
+                        </a>
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

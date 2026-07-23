@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from drf_spectacular.views import (
@@ -10,6 +10,9 @@ from drf_spectacular.views import (
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    
+    # Contracts / Documents Endpoints
+    path('api/contracts/', include('apps.contracts.urls', namespace='contracts')),
     
     # OpenAPI Schema & API Documentation (Swagger & Redoc)
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

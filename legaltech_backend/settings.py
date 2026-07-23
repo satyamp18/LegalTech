@@ -78,16 +78,54 @@ WSGI_APPLICATION = 'legaltech_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='5432'),
-    }
+postgres_db_params = {
+    'NAME': config('DB_NAME'),
+    'USER': config('DB_USER'),
+    'PASSWORD': config('DB_PASSWORD'),
+    'HOST': config('DB_HOST', default='localhost'),
+    'PORT': config('DB_PORT', default='5432'),
 }
+
+# Graceful SQLite fallback logic
+use_sqlite_fallback = 'test' in sys.argv or config('USE_SQLITE', default=False, cast=bool)
+
+if not use_sqlite_fallback and postgres_db_params.get('HOST') in ('localhost', '127.0.0.1', '127.0.0.1', '[::1]'):
+    try:
+        import psycopg2
+        # Try to connect with a short timeout to check if service is up
+        conn = psycopg2.connect(
+            database=postgres_db_params['NAME'],
+            user=postgres_db_params['USER'],
+            password=postgres_db_params['PASSWORD'],
+            host=postgres_db_params['HOST'],
+            port=postgres_db_params['PORT'],
+            connect_timeout=1
+        )
+        conn.close()
+    except Exception:
+        use_sqlite_fallback = True
+        print("\n" + "=" * 80)
+        print("WARNING: PostgreSQL connection failed. Falling back to local SQLite database.")
+        print("=" * 80 + "\n")
+
+if use_sqlite_fallback:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'USER': postgres_db_params['USER'],
+            'PASSWORD': postgres_db_params['PASSWORD'],
+            'HOST': postgres_db_params['HOST'],
+            'PORT': postgres_db_params['PORT'],
+            'NAME': postgres_db_params['NAME'],
+        }
+    }
 
 
 # Password validation
@@ -166,6 +204,9 @@ STATICFILES_DIRS = [
 # Media files (Uploaded files, PDFs, etc.)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Maximum contract upload size (default to 10MB in bytes)
+MAX_CONTRACT_UPLOAD_SIZE = config('MAX_CONTRACT_UPLOAD_SIZE', default=10 * 1024 * 1024, cast=int)
 
 
 # Logging Configuration

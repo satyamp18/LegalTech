@@ -18,10 +18,16 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import HttpResponse
+
+
+def dashboard(request):
+    return HttpResponse("<h1>Dashboard Coming Soon</h1>")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("apps.accounts.urls")),
+    path("dashboard/", dashboard, name="dashboard"),
 ]
 
 if settings.DEBUG:

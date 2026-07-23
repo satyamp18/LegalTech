@@ -9,7 +9,6 @@
 
     <div class="row justify-content-center align-items-center">
 
-        <!-- Left Section -->
         <div class="col-lg-5 d-none d-lg-block">
 
             <h1 class="display-5 fw-bold text-primary">
@@ -33,7 +32,6 @@
 
         </div>
 
-        <!-- Register Card -->
         <div class="col-lg-6">
 
             <div class="card shadow-lg border-0 rounded-4">
@@ -44,6 +42,20 @@
                         Create Account
                     </h2>
 
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
                     <form method="POST">
 
                         {% csrf_token %}
@@ -51,50 +63,108 @@
                         <div class="row">
 
                             <div class="col-md-6 mb-3">
-                                <label>First Name</label>
+
+                                <label class="form-label">
+                                    First Name
+                                </label>
+
                                 {{ form.first_name }}
+
+                                <small class="text-danger">
+                                    {{ form.first_name.errors }}
+                                </small>
+
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label>Last Name</label>
+
+                                <label class="form-label">
+                                    Last Name
+                                </label>
+
                                 {{ form.last_name }}
+
+                                <small class="text-danger">
+                                    {{ form.last_name.errors }}
+                                </small>
+
                             </div>
 
                         </div>
 
                         <div class="mb-3">
-                            <label>Username</label>
+
+                            <label class="form-label">
+                                Username
+                            </label>
+
                             {{ form.username }}
+
+                            <small class="text-danger">
+                                {{ form.username.errors }}
+                            </small>
+
                         </div>
 
                         <div class="mb-3">
-                            <label>Email</label>
+
+                            <label class="form-label">
+                                Email
+                            </label>
+
                             {{ form.email }}
+
+                            <small class="text-danger">
+                                {{ form.email.errors }}
+                            </small>
+
                         </div>
 
                         <div class="mb-3">
-                            <label>Password</label>
+
+                            <label class="form-label">
+                                Password
+                            </label>
+
                             {{ form.password1 }}
+
+                            <small class="text-danger">
+                                {{ form.password1.errors }}
+                            </small>
+
                         </div>
 
                         <div class="mb-4">
-                            <label>Confirm Password</label>
+
+                            <label class="form-label">
+                                Confirm Password
+                            </label>
+
                             {{ form.password2 }}
+
+                            <small class="text-danger">
+                                {{ form.password2.errors }}
+                            </small>
+
                         </div>
 
-                        <button class="btn btn-primary w-100">
-                            Register
+                        <button
+                            type="submit"
+                            class="btn btn-primary w-100 py-2">
+
+                            Create Account
+
                         </button>
 
                     </form>
 
                     <hr>
 
-                    <p class="text-center">
+                    <p class="text-center mb-0">
 
                         Already have an account?
 
-                        <a href="#">
+                        <a href="{% url 'login' %}">
                             Login
                         </a>
 

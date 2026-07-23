@@ -35,6 +35,17 @@ class DocumentUploadView(APIView):
             if serializer.is_valid():
                 document = serializer.save()
                 
+                # Process text extraction synchronously using the DocumentService
+                from apps.contracts.services import DocumentService
+                doc_service = DocumentService()
+                try:
+                    doc_service.process_document_text_extraction(document)
+                except Exception as parse_error:
+                    logger.error(f"Text extraction failed during upload for document {document.id}: {str(parse_error)}")
+                
+                # Refresh model instance from DB to get the latest status
+                document.refresh_from_db()
+                
                 # Extract filename basename
                 filename = document.uploaded_file.name.split('/')[-1].split('\\')[-1]
                 
@@ -47,7 +58,7 @@ class DocumentUploadView(APIView):
                     "upload timestamp": document.upload_date.isoformat(),
                 }
                 
-                logger.info(f"Successfully uploaded document {document.id} (Filename: {filename})")
+                logger.info(f"Successfully processed upload and extraction for document {document.id} (Status: {document.status})")
                 return Response(response_data, status=status.HTTP_201_CREATED)
             
             logger.warning(f"Validation failed for document upload: {serializer.errors}")

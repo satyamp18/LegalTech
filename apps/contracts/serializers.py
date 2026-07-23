@@ -1,9 +1,19 @@
 from rest_framework import serializers
 from django.conf import settings
 from apps.contracts.models import Document
+import fitz
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+def _format_file_size(size_in_bytes: int) -> str:
+    """Formats bytes into human-readable string representation."""
+    if size_in_bytes >= 1024 * 1024:
+        return f"{size_in_bytes / (1024 * 1024):.1f} MB"
+    elif size_in_bytes >= 1024:
+        return f"{size_in_bytes / 1024:.1f} KB"
+    return f"{size_in_bytes} Bytes"
 
 
 class DocumentUploadSerializer(serializers.ModelSerializer):
@@ -46,7 +56,7 @@ class DocumentUploadSerializer(serializers.ModelSerializer):
         if value.size > max_size:
             logger.warning(f"Rejected upload: File size {value.size} bytes exceeds limit {max_size} bytes.")
             raise serializers.ValidationError(
-                f"File size exceeds maximum limit of {max_size / (1024 * 1024):.1f} MB."
+                f"File size exceeds maximum limit of {_format_file_size(max_size)}."
             )
 
         # 2. File Extension Check
@@ -77,6 +87,19 @@ class DocumentUploadSerializer(serializers.ModelSerializer):
             if b'%%EOF' not in tail:
                 logger.warning(f"Rejected upload: Missing PDF trailer %%EOF in '{filename}'.")
                 raise serializers.ValidationError("Corrupted or invalid PDF file: Missing %%EOF trailer.")
+
+            # PyMuPDF-specific parse check: verify PyMuPDF can open the document stream
+            value.seek(0)
+            pdf_bytes = value.read()
+            try:
+                doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+                # Perform basic validation (check page count, make sure it is not zero if it contains content)
+                if len(doc) == 0:
+                    logger.warning(f"Rejected upload: PDF has 0 pages or is empty for '{filename}'.")
+                doc.close()
+            except Exception as e:
+                logger.warning(f"Rejected upload: PyMuPDF verification failed for '{filename}': {str(e)}")
+                raise serializers.ValidationError("Corrupted or invalid PDF file structure.")
 
             # Reset file pointer to beginning so standard Django savers can write from start
             value.seek(0)

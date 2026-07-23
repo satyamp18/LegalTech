@@ -21,12 +21,21 @@ class DocumentUploadTestCase(APITestCase):
         self.client.login(username='testuser', password='testpassword123')
         self.upload_url = reverse('contracts:document-upload')
 
-        # Define valid PDF content
-        self.valid_pdf_content = b'%PDF-1.4\n%...\n%%EOF'
+        # Define valid PDF content that can be successfully opened by PyMuPDF
+        self.valid_pdf_content = (
+            b'%PDF-1.4\n'
+            b'1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n'
+            b'2 0 obj\n<< /Type /Pages /Kids [ 3 0 R ] /Count 1 >>\nendobj\n'
+            b'3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [ 0 0 612 792 ] /Contents 4 0 R /Resources << >> >>\nendobj\n'
+            b'4 0 obj\n<< /Length 44 >>\nstream\nBT\n/F1 12 Tf\n72 712 Td\n(Hello World) Tj\nET\nendstream\nendobj\nxref\n'
+            b'0 5\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n0000000224 00000 n \n'
+            b'trailer\n<< /Size 5 /Root 1 0 R >>\n'
+            b'startxref\n318\n%%EOF'
+        )
 
     def test_successful_pdf_upload(self):
         """
-        Verify that a valid PDF file can be uploaded successfully by an authenticated user.
+        Verify that a valid PDF file can be uploaded and text is extracted synchronously.
         """
         uploaded_file = SimpleUploadedFile(
             name="lease_agreement.pdf",
@@ -52,9 +61,9 @@ class DocumentUploadTestCase(APITestCase):
         self.assertIn('upload_timestamp', response.data)
         self.assertIn('upload timestamp', response.data)
 
-        # Assert response values
+        # Assert response values show the document has been parsed
         self.assertEqual(response.data['filename'], 'lease_agreement.pdf')
-        self.assertEqual(response.data['upload_status'], Document.DocumentStatus.UPLOADED)
+        self.assertEqual(response.data['upload_status'], Document.DocumentStatus.PARSED)
 
         # Verify DB entry
         doc_id = response.data['document_id']
@@ -62,19 +71,21 @@ class DocumentUploadTestCase(APITestCase):
         self.assertEqual(document.title, 'Lease Agreement NDA')
         self.assertEqual(document.uploaded_by, self.user)
         self.assertEqual(document.document_type, Document.DocumentType.NDA)
+        self.assertEqual(document.status, Document.DocumentStatus.PARSED)
+        self.assertEqual(document.extracted_text, 'Hello World')
         self.assertTrue(document.uploaded_file.name.endswith('lease_agreement.pdf'))
 
         # Clean up files created during test
         if document.uploaded_file and os.path.exists(document.uploaded_file.path):
             os.remove(document.uploaded_file.path)
 
-    @override_settings(MAX_CONTRACT_UPLOAD_SIZE=50)
+    @override_settings(MAX_CONTRACT_UPLOAD_SIZE=500)
     def test_upload_file_exceeds_max_size(self):
         """
         Verify that files exceeding the MAX_CONTRACT_UPLOAD_SIZE setting are rejected.
         """
-        # 100 bytes of data exceeds the 50 bytes max limit set by decorator
-        large_content = self.valid_pdf_content + b'A' * 100
+        # 1000 bytes of data exceeds the 500 bytes max limit set by decorator
+        large_content = self.valid_pdf_content + b'A' * 1000
         uploaded_file = SimpleUploadedFile(
             name="large_file.pdf",
             content=large_content,
@@ -186,3 +197,44 @@ class DocumentUploadTestCase(APITestCase):
         # Clean up files created during test
         if document.uploaded_file and os.path.exists(document.uploaded_file.path):
             os.remove(document.uploaded_file.path)
+
+    def test_pdf_extractor_cleaning_logic(self):
+        """
+        Verify that the clean text utility formats strings correctly by merging soft-wrapped lines
+        and maintaining headings.
+        """
+        from apps.contracts.pdf_extractor import PDFExtractorService
+        service = PDFExtractorService()
+
+        # 1. Soft wrapped line merge check
+        wrapped_paragraph = "This is a contract clause\nthat has been split across\nmultiple soft-wrapped lines."
+        cleaned = service._clean_block_text(wrapped_paragraph)
+        self.assertEqual(cleaned, "This is a contract clause that has been split across multiple soft-wrapped lines.")
+
+        # 2. Heading preservation check
+        text_with_heading = "ARTICLE I: DEFINITIONS\nThis is the definition paragraph\nthat follows the uppercase header."
+        cleaned = service._clean_block_text(text_with_heading)
+        self.assertEqual(cleaned, "ARTICLE I: DEFINITIONS\nThis is the definition paragraph that follows the uppercase header.")
+
+        # 3. Hyphen merging check
+        text_with_hyphen = "We represent the employ-\nee of the company."
+        cleaned = service._clean_block_text(text_with_hyphen)
+        self.assertEqual(cleaned, "We represent the employee of the company.")
+
+    def test_document_service_missing_file(self):
+        """
+        Verify that the DocumentService transitions a document's status to 'failed'
+        and throws a FileNotFoundError when the file is not on disk.
+        """
+        from apps.contracts.services import DocumentService
+        doc = Document.objects.create(
+            title="Missing File Doc",
+            uploaded_file="nonexistent/file.pdf"
+        )
+        
+        service = DocumentService()
+        with self.assertRaises(FileNotFoundError):
+            service.process_document_text_extraction(doc)
+
+        doc.refresh_from_db()
+        self.assertEqual(doc.status, Document.DocumentStatus.FAILED)

@@ -208,6 +208,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Maximum contract upload size (default to 10MB in bytes)
 MAX_CONTRACT_UPLOAD_SIZE = config('MAX_CONTRACT_UPLOAD_SIZE', default=10 * 1024 * 1024, cast=int)
 
+# spaCy NLP configuration settings
+SPACY_MODEL_NAME = config('SPACY_MODEL_NAME', default='en_core_web_sm')
+
 
 # Logging Configuration
 LOGGING = {

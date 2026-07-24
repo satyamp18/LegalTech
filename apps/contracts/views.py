@@ -43,8 +43,24 @@ class DocumentUploadView(APIView):
                 except Exception as parse_error:
                     logger.error(f"Text extraction failed during upload for document {document.id}: {str(parse_error)}")
                 
-                # Refresh model instance from DB to get the latest status
+                 # Refresh model instance from DB to get the latest status
                 document.refresh_from_db()
+
+                # Process Named Entity Recognition (NER) on the extracted text
+                from apps.parser.entity_extractor import EntityExtractionService
+                entity_service = EntityExtractionService()
+                entities = {
+                    "organizations": [],
+                    "dates": [],
+                    "locations": [],
+                    "persons": []
+                }
+                
+                if document.extracted_text:
+                    try:
+                        entities = entity_service.extract_entities(document.extracted_text)
+                    except Exception as ner_error:
+                        logger.error(f"NER extraction failed during upload for document {document.id}: {str(ner_error)}")
                 
                 # Extract filename basename
                 filename = document.uploaded_file.name.split('/')[-1].split('\\')[-1]
@@ -56,6 +72,7 @@ class DocumentUploadView(APIView):
                     "upload status": document.status,
                     "upload_timestamp": document.upload_date.isoformat(),
                     "upload timestamp": document.upload_date.isoformat(),
+                    "entities": entities,
                 }
                 
                 logger.info(f"Successfully processed upload and extraction for document {document.id} (Status: {document.status})")

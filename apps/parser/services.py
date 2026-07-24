@@ -22,8 +22,8 @@ class NLPService:
             model_name = getattr(settings, 'SPACY_MODEL_NAME', 'en_core_web_sm')
             logger.info(f"Initializing spaCy model: '{model_name}'...")
             try:
-                # Disable NER to save resources and comply with constraints
-                cls._nlp_model = spacy.load(model_name, disable=['ner'])
+                # Load the full model including the NER component
+                cls._nlp_model = spacy.load(model_name)
                 logger.info(f"Successfully loaded spaCy model: '{model_name}'")
             except Exception as e:
                 logger.error(f"Failed to load spaCy model '{model_name}': {str(e)}", exc_info=True)
@@ -44,7 +44,7 @@ class NLPService:
         - Normalizes tokens to their root lemma.
         - Optionally converts result to lowercase.
         """
-        if not text:
+        if not text or not isinstance(text, str):
             return ""
 
         try:
@@ -76,7 +76,7 @@ class NLPService:
         """
         Tokenizes the input text into a list of word strings.
         """
-        if not text:
+        if not text or not isinstance(text, str):
             return []
 
         try:
@@ -90,7 +90,7 @@ class NLPService:
         """
         Segments the input text block into a list of individual sentence strings.
         """
-        if not text:
+        if not text or not isinstance(text, str):
             return []
 
         try:

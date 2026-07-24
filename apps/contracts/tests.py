@@ -60,10 +60,22 @@ class DocumentUploadTestCase(APITestCase):
         self.assertIn('upload status', response.data)
         self.assertIn('upload_timestamp', response.data)
         self.assertIn('upload timestamp', response.data)
+        self.assertIn('entities', response.data)
 
         # Assert response values show the document has been parsed
         self.assertEqual(response.data['filename'], 'lease_agreement.pdf')
         self.assertEqual(response.data['upload_status'], Document.DocumentStatus.PARSED)
+
+        # Verify entities dictionary structure
+        entities_data = response.data['entities']
+        self.assertIn('organizations', entities_data)
+        self.assertIn('dates', entities_data)
+        self.assertIn('locations', entities_data)
+        self.assertIn('persons', entities_data)
+        self.assertEqual(entities_data['organizations'], [])
+        self.assertEqual(entities_data['dates'], [])
+        self.assertEqual(entities_data['locations'], [])
+        self.assertEqual(entities_data['persons'], [])
 
         # Verify DB entry
         doc_id = response.data['document_id']

@@ -1,6 +1,7 @@
 from django.test import SimpleTestCase
 from django.test import override_settings
 from apps.parser.services import NLPService
+from apps.parser.entity_extractor import EntityExtractionService
 import spacy
 
 
@@ -72,7 +73,7 @@ class NLPServiceTestCase(SimpleTestCase):
 
     def test_empty_and_none_handling(self):
         """
-        Verify that None and empty string inputs do not crash the service,
+        Verify that None, empty string, and non-string inputs do not crash the service,
         but return empty strings or lists.
         """
         # None inputs
@@ -89,3 +90,60 @@ class NLPServiceTestCase(SimpleTestCase):
         self.assertEqual(self.nlp_service.preprocess_text("   "), "")
         self.assertEqual(self.nlp_service.tokenize_text("   "), [])
         self.assertEqual(self.nlp_service.sentence_segmentation("   "), [])
+
+        # Non-string inputs
+        self.assertEqual(self.nlp_service.preprocess_text(123), "")
+        self.assertEqual(self.nlp_service.tokenize_text([]), [])
+        self.assertEqual(self.nlp_service.sentence_segmentation({}), [])
+
+
+class EntityExtractionTestCase(SimpleTestCase):
+    def setUp(self):
+        # Initialize EntityExtractionService
+        self.extractor_service = EntityExtractionService()
+
+    def test_extract_entities_success(self):
+        """
+        Verify that common named entities (Google, John Doe, New York, January 1, 2026)
+        are correctly detected and mapped.
+        """
+        text = "On January 1, 2026, John Doe signed an agreement with Google in New York."
+        entities = self.extractor_service.extract_entities(text)
+        
+        # Verify JSON schema keys
+        self.assertIn("organizations", entities)
+        self.assertIn("dates", entities)
+        self.assertIn("locations", entities)
+        self.assertIn("persons", entities)
+        
+        # Verify extracted content values
+        self.assertIn("Google", entities["organizations"])
+        self.assertIn("January 1, 2026", entities["dates"])
+        self.assertIn("New York", entities["locations"])
+        self.assertIn("John Doe", entities["persons"])
+
+    def test_extract_entities_deduplication(self):
+        """
+        Verify that duplicate entities are merged and only appear once in lists.
+        """
+        text = "John Doe works at Google. John Doe likes Google."
+        entities = self.extractor_service.extract_entities(text)
+        
+        self.assertEqual(entities["organizations"].count("Google"), 1)
+        self.assertEqual(entities["persons"].count("John Doe"), 1)
+
+    def test_extract_entities_empty(self):
+        """
+        Verify that empty, None, whitespace, and non-string inputs return the standard empty dictionary template.
+        """
+        empty_schema = {
+            "organizations": [],
+            "dates": [],
+            "locations": [],
+            "persons": []
+        }
+        self.assertEqual(self.extractor_service.extract_entities(""), empty_schema)
+        self.assertEqual(self.extractor_service.extract_entities(None), empty_schema)
+        self.assertEqual(self.extractor_service.extract_entities("   "), empty_schema)
+        self.assertEqual(self.extractor_service.extract_entities(12345), empty_schema)
+        self.assertEqual(self.extractor_service.extract_entities([]), empty_schema)

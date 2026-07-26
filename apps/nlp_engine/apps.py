@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class NlpEngineConfig(AppConfig):
-    name = 'nlp_engine'
+    name = "apps.nlp_engine"

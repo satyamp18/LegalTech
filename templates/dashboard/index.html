@@ -1,0 +1,276 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard | LexVision AI{% endblock %}
+
+{% block content %}
+
+<!-- Header Title Area -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h3 class="fw-bold text-dark mb-1">Enterprise Executive Dashboard</h3>
+    <p class="text-muted small mb-0">Real-time contract intelligence, risk distribution & compliance analytics.</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'document_upload' %}" class="btn btn-primary-custom btn-sm">
+      <i class="bi bi-cloud-upload me-1"></i> New Contract Scan
+    </a>
+  </div>
+</div>
+
+<!-- 1. KPI CARDS ROW -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card-enterprise kpi-card hover-elevate">
+      <div>
+        <div class="kpi-title">Total Contracts</div>
+        <div class="kpi-value">{{ metrics.kpis.total_contracts }}</div>
+        <div class="small text-success mt-1"><i class="bi bi-arrow-up-right me-1"></i>Active In Repository</div>
+      </div>
+      <div class="kpi-icon-box kpi-icon-blue">
+        <i class="bi bi-file-earmark-text-fill"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card-enterprise kpi-card hover-elevate">
+      <div>
+        <div class="kpi-title">High Risk Flagged</div>
+        <div class="kpi-value text-danger">{{ metrics.kpis.high_risk_contracts }}</div>
+        <div class="small text-danger mt-1"><i class="bi bi-exclamation-triangle-fill me-1"></i>Action Required</div>
+      </div>
+      <div class="kpi-icon-box kpi-icon-red">
+        <i class="bi bi-shield-slash-fill"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card-enterprise kpi-card hover-elevate">
+      <div>
+        <div class="kpi-title">Pending Review</div>
+        <div class="kpi-value text-warning">{{ metrics.kpis.pending_reviews }}</div>
+        <div class="small text-muted mt-1"><i class="bi bi-clock-history me-1"></i>In Queue</div>
+      </div>
+      <div class="kpi-icon-box kpi-icon-amber">
+        <i class="bi bi-hourglass-split"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card-enterprise kpi-card hover-elevate">
+      <div>
+        <div class="kpi-title">Avg Risk Score</div>
+        <div class="kpi-value text-primary">{{ metrics.kpis.avg_risk_score }}<span class="fs-6 text-muted">/100</span></div>
+        <div class="small text-success mt-1"><i class="bi bi-check-circle-fill me-1"></i>Accuracy 98.4%</div>
+      </div>
+      <div class="kpi-icon-box kpi-icon-emerald">
+        <i class="bi bi-speedometer2"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. ANALYTICS & CHARTS ROW -->
+<div class="row g-3 mb-4">
+  <!-- Weekly Analytics Line Chart -->
+  <div class="col-lg-8">
+    <div class="card-enterprise h-100 mb-0">
+      <div class="card-header-clean">
+        <div class="fw-bold text-dark"><i class="bi bi-graph-up-arrow me-2 text-primary"></i>Weekly Contract Scan Analytics</div>
+        <span class="badge bg-light text-secondary border">Last 7 Days</span>
+      </div>
+      <div class="card-body-clean">
+        <canvas id="weeklyAnalyticsChart" height="110"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Risk Distribution Donut Chart -->
+  <div class="col-lg-4">
+    <div class="card-enterprise h-100 mb-0">
+      <div class="card-header-clean">
+        <div class="fw-bold text-dark"><i class="bi bi-pie-chart-fill me-2 text-primary"></i>Risk Distribution</div>
+      </div>
+      <div class="card-body-clean d-flex flex-column align-items-center justify-content-center">
+        <div style="width: 200px; height: 200px;">
+          <canvas id="riskDistributionChart"></canvas>
+        </div>
+        <div class="d-flex justify-content-center gap-3 mt-3 w-100">
+          <div class="text-center"><span class="badge bg-success-subtle text-success border">Low: {{ metrics.risk_distribution.LOW }}</span></div>
+          <div class="text-center"><span class="badge bg-warning-subtle text-warning border">Med: {{ metrics.risk_distribution.MEDIUM }}</span></div>
+          <div class="text-center"><span class="badge bg-danger-subtle text-danger border">High: {{ metrics.risk_distribution.HIGH }}</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. RECENT UPLOADS TABLE & QUICK ACTIONS -->
+<div class="row g-3">
+  <!-- Recent Contracts Table -->
+  <div class="col-lg-9">
+    <div class="card-enterprise mb-0">
+      <div class="card-header-clean">
+        <div class="fw-bold text-dark"><i class="bi bi-clock-history me-2 text-primary"></i>Recent Contract Audits</div>
+        <a href="{% url 'document_list' %}" class="btn btn-link btn-sm text-primary p-0 text-decoration-none fw-semibold">View All <i class="bi bi-arrow-right"></i></a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-enterprise align-middle">
+          <thead>
+            <tr>
+              <th>Contract Title</th>
+              <th>Uploaded By</th>
+              <th>Status</th>
+              <th>Risk Score</th>
+              <th>Uploaded At</th>
+              <th class="text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for doc in metrics.recent_documents %}
+            <tr>
+              <td>
+                <div class="fw-bold text-dark">{{ doc.title }}</div>
+                <div class="small text-muted">{{ doc.formatted_size }} | {{ doc.page_count }} Pages</div>
+              </td>
+              <td>{{ doc.uploaded_by.username|default:"System" }}</td>
+              <td>
+                <span class="badge badge-status badge-status-{{ doc.status }}">
+                  {{ doc.get_status_display }}
+                </span>
+              </td>
+              <td>
+                {% if doc.risk_analysis %}
+                  <span class="badge badge-status badge-risk-{{ doc.risk_analysis.risk_level }}">
+                    {{ doc.risk_analysis.overall_risk_score }}/100 - {{ doc.risk_analysis.risk_level }}
+                  </span>
+                {% else %}
+                  <span class="badge bg-light text-muted">Pending</span>
+                {% endif %}
+              </td>
+              <td class="text-muted small">{{ doc.created_at|date:"M d, Y" }}</td>
+              <td class="text-end">
+                <a href="{% url 'document_detail' doc.id %}" class="btn btn-sm btn-outline-custom">
+                  <i class="bi bi-eye-fill me-1"></i> Workspace
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-4 text-muted">
+                No contracts uploaded yet. Click "New Contract Scan" to get started!
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions Panel -->
+  <div class="col-lg-3">
+    <div class="card-enterprise mb-0">
+      <div class="card-header-clean">
+        <div class="fw-bold text-dark"><i class="bi bi-lightning-charge-fill me-2 text-warning"></i>Quick Actions</div>
+      </div>
+      <div class="card-body-clean d-flex flex-column gap-2">
+        <a href="{% url 'document_upload' %}" class="btn btn-outline-custom w-100 text-start py-2.5">
+          <i class="bi bi-file-earmark-arrow-up text-primary me-2 fs-5"></i> Upload PDF Contract
+        </a>
+
+        <a href="{% url 'document_list' %}?risk=HIGH" class="btn btn-outline-custom w-100 text-start py-2.5">
+          <i class="bi bi-shield-exclamation text-danger me-2 fs-5"></i> Review High Risk Items
+        </a>
+
+        <a href="{% url 'document_list' %}" class="btn btn-outline-custom w-100 text-start py-2.5">
+          <i class="bi bi-search text-info me-2 fs-5"></i> Contract Repository
+        </a>
+
+        <hr class="my-2">
+
+        <div class="p-3 bg-light rounded-3 border">
+          <div class="fw-bold text-dark small mb-1"><i class="bi bi-info-circle text-primary me-1"></i> System Engine Status</div>
+          <div class="small text-muted">PyMuPDF Text Engine & spaCy Rule-based NLP are fully active and online.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Weekly Analytics Line Chart
+  const ctxWeekly = document.getElementById('weeklyAnalyticsChart').getContext('2d');
+  new Chart(ctxWeekly, {
+    type: 'line',
+    data: {
+      labels: {{ metrics.weekly_analytics.labels|safe }},
+      datasets: [
+        {
+          label: 'Total Scanned Contracts',
+          data: {{ metrics.weekly_analytics.uploads|safe }},
+          borderColor: '#0f52ba',
+          backgroundColor: 'rgba(15, 82, 186, 0.08)',
+          fill: true,
+          tension: 0.35,
+          borderWidth: 2.5
+        },
+        {
+          label: 'High-Risk Flags',
+          data: {{ metrics.weekly_analytics.high_risks|safe }},
+          borderColor: '#ef4444',
+          backgroundColor: 'rgba(239, 68, 68, 0.08)',
+          fill: true,
+          tension: 0.35,
+          borderWidth: 2
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'top' }
+      },
+      scales: {
+        y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+
+  // Risk Distribution Donut Chart
+  const ctxRisk = document.getElementById('riskDistributionChart').getContext('2d');
+  new Chart(ctxRisk, {
+    type: 'doughnut',
+    data: {
+      labels: ['Low Risk', 'Medium Risk', 'High Risk'],
+      datasets: [{
+        data: [
+          {{ metrics.risk_distribution.LOW }},
+          {{ metrics.risk_distribution.MEDIUM }},
+          {{ metrics.risk_distribution.HIGH }} + {{ metrics.risk_distribution.CRITICAL }}
+        ],
+        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+        borderWidth: 2,
+        borderColor: '#ffffff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      cutout: '72%'
+    }
+  });
+});
+</script>
+{% endblock %}

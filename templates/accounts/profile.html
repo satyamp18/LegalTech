@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}User Profile | LexVision AI{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+
+    <div class="mb-4">
+      <h3 class="fw-bold text-dark mb-1">User Account Profile</h3>
+      <p class="text-muted small">Manage your legal account credentials, role authority, and contact details.</p>
+    </div>
+
+    <div class="card-enterprise">
+      <div class="card-body-clean p-4">
+        
+        <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+          <div class="user-avatar-circle" style="width: 60px; height: 60px; font-size: 1.5rem;">
+            {{ user.first_name|default:user.username|slice:":1"|upper }}
+          </div>
+          <div>
+            <h5 class="fw-bold text-dark mb-0">{{ user.get_full_name|default:user.username }}</h5>
+            <div class="text-muted small">{{ user.email }}</div>
+            <span class="badge bg-primary mt-1">{{ user.get_role_display }}</span>
+          </div>
+        </div>
+
+        <form method="POST" action="{% url 'profile' %}">
+          {% csrf_token %}
+
+          <div class="row g-3 mb-3">
+            <div class="col-6">
+              <label class="form-label small fw-bold text-dark">First Name</label>
+              <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}">
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-bold text-dark">Last Name</label>
+              <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-dark">Email Address</label>
+            <input type="email" name="email" class="form-control" value="{{ user.email }}">
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-6">
+              <label class="form-label small fw-bold text-dark">Department</label>
+              <input type="text" name="department" class="form-control" value="{{ user.department|default:'Legal Operations' }}">
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-bold text-dark">Phone Number</label>
+              <input type="text" name="phone" class="form-control" value="{{ user.phone|default:'' }}">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary-custom">Save Profile Changes</button>
+        </form>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

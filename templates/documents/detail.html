@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ document.title }} | Contract Workspace{% endblock %}
+
+{% block content %}
+
+<!-- Header bar -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="d-flex align-items-center gap-3">
+    <a href="{% url 'document_list' %}" class="btn btn-sm btn-light border" title="Back to Repository">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+      <h4 class="fw-bold text-dark mb-0">{{ document.title }}</h4>
+      <div class="small text-muted">
+        Uploaded {{ document.created_at|date:"M d, Y H:i" }} | {{ document.page_count }} Pages | Status: 
+        <span class="badge badge-status badge-status-{{ document.status }} ms-1">{{ document.get_status_display }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2">
+    <!-- Download Report Dropdown -->
+    <div class="dropdown">
+      <button class="btn btn-primary-custom btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+        <i class="bi bi-download me-1"></i> Download Audit Report
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+        <li><a class="dropdown-item" href="{% url 'web_export_report' document.id 'pdf' %}"><i class="bi bi-file-pdf text-danger me-2"></i> PDF Printable Audit Report</a></li>
+        <li><a class="dropdown-item" href="{% url 'web_export_report' document.id 'csv' %}"><i class="bi bi-file-earmark-excel text-success me-2"></i> CSV Dataset Export</a></li>
+        <li><a class="dropdown-item" href="{% url 'web_export_report' document.id 'json' %}"><i class="bi bi-code-square text-primary me-2"></i> Machine JSON Payload</a></li>
+      </ul>
+    </div>
+    
+    <a href="{% url 'web_trigger_reanalysis' document.id %}" class="btn btn-outline-custom btn-sm" title="Re-run Analysis">
+      <i class="bi bi-arrow-repeat"></i> Re-Scan
+    </a>
+  </div>
+</div>
+
+<!-- SPLIT-VIEW WORKSPACE CONTAINER -->
+<div class="workspace-container">
+
+  <!-- LEFT PANEL: EMBEDDED PDF VIEWER -->
+  <div class="pdf-panel">
+    <div class="p-2.5 bg-light border-bottom d-flex align-items-center justify-content-between px-3">
+      <div class="fw-bold text-dark small"><i class="bi bi-file-earmark-pdf me-2 text-danger"></i>Contract PDF Viewer</div>
+      <a href="{{ document.file.url }}" target="_blank" class="btn btn-sm btn-link text-decoration-none p-0 text-muted small">Open Fullscreen <i class="bi bi-box-arrow-up-right ms-1"></i></a>
+    </div>
+    <iframe src="{{ document.file.url }}" class="pdf-viewer-frame"></iframe>
+  </div>
+
+  <!-- RIGHT PANEL: INTELLIGENCE & RISK WORKSPACE -->
+  <div class="intelligence-panel">
+
+    <!-- 1. RISK SCORE GAUGE CARD -->
+    <div class="card-enterprise mb-0">
+      <div class="card-body-clean p-4">
+        <div class="row align-items-center">
+          <div class="col-md-7">
+            <div class="small fw-bold text-uppercase text-muted mb-1">Contract Risk Score</div>
+            {% if risk_analysis %}
+              <div class="d-flex align-items-baseline gap-2 mb-2">
+                <span class="display-5 fw-extrabold text-dark">{{ risk_analysis.overall_risk_score }}</span>
+                <span class="fs-5 text-muted">/100</span>
+                <span class="badge badge-status badge-risk-{{ risk_analysis.risk_level }} ms-2">
+                  {{ risk_analysis.get_risk_level_display }}
+                </span>
+              </div>
+              <p class="small text-muted mb-0">{{ risk_analysis.risk_summary }}</p>
+            {% else %}
+              <div class="text-muted">Risk Analysis pending.</div>
+            {% endif %}
+          </div>
+          <div class="col-md-5 text-center border-start">
+            <div class="d-flex flex-column gap-2">
+              <div class="d-flex justify-content-between small">
+                <span class="text-muted">Critical / High Flags:</span>
+                <span class="fw-bold text-danger">{{ risk_analysis.high_risk_count|default:0 }}</span>
+              </div>
+              <div class="d-flex justify-content-between small">
+                <span class="text-muted">Medium Flags:</span>
+                <span class="fw-bold text-warning">{{ risk_analysis.medium_risk_count|default:0 }}</span>
+              </div>
+              <div class="d-flex justify-content-between small">
+                <span class="text-muted">Low Flags:</span>
+                <span class="fw-bold text-success">{{ risk_analysis.low_risk_count|default:0 }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. EXTRACTED METADATA CARD -->
+    <div class="card-enterprise mb-0">
+      <div class="card-header-clean py-2.5">
+        <div class="fw-bold text-dark small"><i class="bi bi-journal-text me-2 text-primary"></i>Extracted Contract Metadata</div>
+      </div>
+      <div class="card-body-clean p-3">
+        {% if metadata %}
+        <div class="row g-3">
+          <div class="col-6">
+            <div class="small text-muted">Governing Law</div>
+            <div class="fw-bold text-dark">{{ metadata.governing_law|default:"Not Specified" }}</div>
+          </div>
+          <div class="col-6">
+            <div class="small text-muted">Jurisdiction</div>
+            <div class="fw-bold text-dark">{{ metadata.jurisdiction|default:"Not Specified" }}</div>
+          </div>
+          <div class="col-6">
+            <div class="small text-muted">Effective Date</div>
+            <div class="fw-bold text-dark">{{ metadata.effective_date|default:"Not Specified" }}</div>
+          </div>
+          <div class="col-6">
+            <div class="small text-muted">Expiration Date</div>
+            <div class="fw-bold text-dark">{{ metadata.expiration_date|default:"Not Specified" }}</div>
+          </div>
+          <div class="col-6">
+            <div class="small text-muted">Contract Duration</div>
+            <div class="fw-bold text-dark">{{ metadata.contract_duration|default:"Unspecified" }}</div>
+          </div>
+          <div class="col-6">
+            <div class="small text-muted">Contract Parties</div>
+            <div class="fw-bold text-dark">
+              {% if metadata.contract_parties %}
+                {{ metadata.contract_parties|join:", " }}
+              {% else %}
+                Identified via Company Names
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="text-muted small">No metadata extracted.</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- 3. DETECTED RISK FLAGS & AI RECOMMENDATIONS -->
+    <div class="card-enterprise mb-0">
+      <div class="card-header-clean py-2.5">
+        <div class="fw-bold text-dark small"><i class="bi bi-shield-exclamation me-2 text-danger"></i>Risk Flags & AI Recommendations</div>
+        <span class="badge bg-danger-subtle text-danger border">{{ risk_items|length }} Detected</span>
+      </div>
+      <div class="card-body-clean p-3">
+        {% for item in risk_items %}
+        <div class="clause-card risk-{{ item.severity|lower }} mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <div class="fw-bold text-dark">{{ item.title }}</div>
+            <span class="badge badge-status badge-risk-{{ item.severity }}">{{ item.severity }}</span>
+          </div>
+          <div class="small text-secondary mb-2">{{ item.explanation }}</div>
+          <div class="p-2 bg-white border rounded text-muted small mb-2 fst-italic">
+            "{{ item.highlighted_text }}"
+          </div>
+          <div class="small fw-semibold text-primary">
+            <i class="bi bi-lightbulb-fill me-1 text-warning"></i> AI Recommendation: <span class="text-dark">{{ item.recommendation }}</span>
+          </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-3 text-success">
+          <i class="bi bi-check-circle-fill display-6 d-block mb-1"></i>
+          <div class="fw-bold">No High Legal Risks Detected</div>
+          <div class="small text-muted">Contract terms align with standard legal safety guidelines.</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- 4. CLAUSE CLASSIFICATION CARD -->
+    <div class="card-enterprise mb-0">
+      <div class="card-header-clean py-2.5">
+        <div class="fw-bold text-dark small"><i class="bi bi-layers-fill me-2 text-primary"></i>Categorized Clauses</div>
+        <span class="badge bg-light text-dark border">{{ clauses|length }} Clauses</span>
+      </div>
+      <div class="card-body-clean p-3">
+        <div class="accordion accordion-flush" id="clausesAccordion">
+          {% for clause in clauses %}
+          <div class="accordion-item border rounded mb-2 overflow-hidden">
+            <h2 class="accordion-header" id="heading{{ clause.id }}">
+              <button class="accordion-button collapsed py-2 px-3 bg-light text-dark small fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ clause.id }}">
+                <span class="badge bg-primary me-2">{{ clause.get_clause_type_display }}</span>
+                Page {{ clause.page_number }}
+              </button>
+            </h2>
+            <div id="collapse{{ clause.id }}" class="accordion-collapse collapse" data-bs-parent="#clausesAccordion">
+              <div class="accordion-body p-3 small text-secondary">
+                {{ clause.text }}
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="text-muted small">No categorized clauses parsed.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

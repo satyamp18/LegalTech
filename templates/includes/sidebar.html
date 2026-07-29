@@ -1,0 +1,97 @@
+{% load static %}
+<aside class="app-sidebar" id="appSidebar">
+  <!-- Sidebar Header & Logo -->
+  <div class="sidebar-header d-flex align-items-center justify-content-between">
+    <a href="{% url 'dashboard' %}" class="sidebar-brand text-decoration-none">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:32px; height:32px; min-width:32px; flex-shrink:0;">
+        <path d="M12 2L3 7V12C3 17.52 7.02 22.5 12 24C16.98 22.5 21 17.52 21 12V7L12 2Z" fill="#2563EB"/>
+        <path d="M12 6L18 9.5V12.5C18 16.2 15.5 19.8 12 20.9C8.5 19.8 6 16.2 6 12.5V9.5L12 6Z" fill="#ffffff" fill-opacity="0.35"/>
+        <path d="M10 15.5L7.5 13L8.91 11.59L10 12.67L15.09 7.58L16.5 9L10 15.5Z" fill="#ffffff"/>
+      </svg>
+      <span class="fs-5 fw-bold text-dark tracking-tight">LexVision <span class="fw-semibold text-primary">AI</span></span>
+    </a>
+    <button type="button" class="btn-close d-lg-none" id="sidebarCloseBtn" aria-label="Close Sidebar"></button>
+  </div>
+
+  <!-- Navigation Links -->
+  <nav class="sidebar-nav">
+    <div class="nav-category">MAIN</div>
+    
+    <a href="{% url 'dashboard' %}" class="nav-link-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+      <i class="bi bi-grid-1x2-fill"></i>
+      <span>Dashboard</span>
+    </a>
+
+    <a href="{% url 'document_list' %}" class="nav-link-item {% if request.resolver_match.url_name == 'document_list' and not request.GET.risk %}active{% endif %}">
+      <i class="bi bi-file-earmark-text-fill"></i>
+      <span>Contracts</span>
+    </a>
+
+    <a href="{% url 'document_upload' %}" class="nav-link-item {% if request.resolver_match.url_name == 'document_upload' %}active{% endif %}">
+      <i class="bi bi-cloud-arrow-up-fill"></i>
+      <span>Upload</span>
+    </a>
+
+    <a href="{% url 'document_list' %}" class="nav-link-item">
+      <i class="bi bi-cpu-fill"></i>
+      <span>Analysis</span>
+    </a>
+
+    <a href="{% url 'document_list' %}?risk=HIGH" class="nav-link-item {% if request.GET.risk == 'HIGH' or request.GET.risk == 'CRITICAL' %}active{% endif %}">
+      <i class="bi bi-shield-exclamation text-danger"></i>
+      <span>Risk Reports</span>
+    </a>
+
+    <div class="nav-category">MANAGEMENT</div>
+
+    <a href="{% url 'profile' %}" class="nav-link-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+      <i class="bi bi-people-fill"></i>
+      <span>Users</span>
+    </a>
+
+    <a href="{% url 'document_list' %}" class="nav-link-item">
+      <i class="bi bi-bar-chart-line-fill"></i>
+      <span>Reports</span>
+    </a>
+
+    <a href="{% url 'settings' %}" class="nav-link-item {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
+      <i class="bi bi-gear-fill"></i>
+      <span>Settings</span>
+    </a>
+
+    {% if user.is_staff or user.is_superuser or user.is_admin %}
+    <a href="/admin/" target="_blank" class="nav-link-item">
+      <i class="bi bi-shield-lock-fill text-primary"></i>
+      <span>Django Admin</span>
+    </a>
+    {% endif %}
+
+    <div class="nav-category">ACCOUNT</div>
+
+    <a href="{% url 'profile' %}" class="nav-link-item">
+      <i class="bi bi-person-circle"></i>
+      <span>Profile</span>
+    </a>
+
+    <a href="{% url 'logout' %}" class="nav-link-item text-danger">
+      <i class="bi bi-box-arrow-right"></i>
+      <span>Logout</span>
+    </a>
+  </nav>
+
+  <!-- User Card in Sidebar -->
+  {% if user.is_authenticated %}
+  <div class="sidebar-user">
+    <div class="user-avatar-circle">
+      {{ user.first_name|default:user.username|slice:":1"|upper }}
+    </div>
+    <div class="flex-grow-1 min-w-0 ms-2">
+      <div class="fw-bold text-dark text-truncate small">{{ user.get_full_name|default:user.username }}</div>
+      <div class="text-muted text-truncate" style="font-size: 12px;">{{ user.get_role_display|default:user.role }}</div>
+    </div>
+    <a href="{% url 'logout' %}" class="btn btn-sm btn-light text-secondary rounded-circle ms-auto" title="Logout">
+      <i class="bi bi-box-arrow-right"></i>
+    </a>
+  </div>
+  {% endif %}
+</aside>

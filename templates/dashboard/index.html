@@ -1,203 +1,219 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Dashboard | LexVision AI{% endblock %}
+{% block title %}Executive Dashboard | LexVision AI{% endblock %}
 
 {% block content %}
 
 <!-- Header Title Area -->
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
   <div>
-    <h3 class="fw-bold text-dark mb-1">Enterprise Executive Dashboard</h3>
-    <p class="text-muted small mb-0">Real-time contract intelligence, risk distribution & compliance analytics.</p>
+    <h1 class="page-title mb-1">Enterprise Executive Dashboard</h1>
+    <p class="page-subtitle">Real-time contract intelligence, legal risk monitoring and compliance analytics.</p>
   </div>
-  <div class="d-flex gap-2">
-    <a href="{% url 'document_upload' %}" class="btn btn-primary-custom btn-sm">
-      <i class="bi bi-cloud-upload me-1"></i> New Contract Scan
+  <div class="d-flex gap-3 mt-3 mt-md-0">
+    <a href="{% url 'document_upload' %}" class="btn-enterprise btn-primary-custom">
+      <i class="bi bi-cloud-arrow-up-fill"></i> New Contract Scan
     </a>
   </div>
 </div>
 
-<!-- 1. KPI CARDS ROW -->
-<div class="row g-3 mb-4">
-  <div class="col-md-3">
-    <div class="card-enterprise kpi-card hover-elevate">
-      <div>
-        <div class="kpi-title">Total Contracts</div>
-        <div class="kpi-value">{{ metrics.kpis.total_contracts }}</div>
-        <div class="small text-success mt-1"><i class="bi bi-arrow-up-right me-1"></i>Active In Repository</div>
+<!-- 1. STATISTICS CARDS (4 Equal-Width Cards) -->
+<div class="stats-grid">
+  <!-- Card 1: Total Contracts -->
+  <div class="stat-card hover-lift">
+    <div>
+      <div class="stat-header">
+        <span class="stat-title">Total Contracts</span>
+        <div class="stat-icon-box stat-icon-blue">
+          <i class="bi bi-file-earmark-text-fill"></i>
+        </div>
       </div>
-      <div class="kpi-icon-box kpi-icon-blue">
-        <i class="bi bi-file-earmark-text-fill"></i>
+      <div class="stat-number">{{ metrics.kpis.total_contracts }}</div>
+    </div>
+    <div>
+      <div class="mini-progress-track">
+        <div class="mini-progress-fill bg-fill-primary" style="width: 100%;"></div>
+      </div>
+      <div class="stat-footer">
+        <span class="stat-trend text-success-color"><i class="bi bi-arrow-up-right"></i> Active Repository</span>
+        <span class="small-label">100%</span>
       </div>
     </div>
   </div>
 
-  <div class="col-md-3">
-    <div class="card-enterprise kpi-card hover-elevate">
-      <div>
-        <div class="kpi-title">High Risk Flagged</div>
-        <div class="kpi-value text-danger">{{ metrics.kpis.high_risk_contracts }}</div>
-        <div class="small text-danger mt-1"><i class="bi bi-exclamation-triangle-fill me-1"></i>Action Required</div>
+  <!-- Card 2: High Risk -->
+  <div class="stat-card hover-lift">
+    <div>
+      <div class="stat-header">
+        <span class="stat-title">High Risk</span>
+        <div class="stat-icon-box stat-icon-red">
+          <i class="bi bi-shield-exclamation"></i>
+        </div>
       </div>
-      <div class="kpi-icon-box kpi-icon-red">
-        <i class="bi bi-shield-slash-fill"></i>
+      <div class="stat-number text-danger-color">{{ metrics.kpis.high_risk_contracts }}</div>
+    </div>
+    <div>
+      <div class="mini-progress-track">
+        <div class="mini-progress-fill bg-fill-danger" style="width: {% if metrics.kpis.total_contracts %}{% widthratio metrics.kpis.high_risk_contracts metrics.kpis.total_contracts 100 %}{% else %}0{% endif %}%;"></div>
+      </div>
+      <div class="stat-footer">
+        <span class="stat-trend text-danger-color"><i class="bi bi-exclamation-triangle-fill"></i> Action Required</span>
+        <span class="small-label">Critical Flags</span>
       </div>
     </div>
   </div>
 
-  <div class="col-md-3">
-    <div class="card-enterprise kpi-card hover-elevate">
-      <div>
-        <div class="kpi-title">Pending Review</div>
-        <div class="kpi-value text-warning">{{ metrics.kpis.pending_reviews }}</div>
-        <div class="small text-muted mt-1"><i class="bi bi-clock-history me-1"></i>In Queue</div>
+  <!-- Card 3: Pending Review -->
+  <div class="stat-card hover-lift">
+    <div>
+      <div class="stat-header">
+        <span class="stat-title">Pending Review</span>
+        <div class="stat-icon-box stat-icon-amber">
+          <i class="bi bi-hourglass-split"></i>
+        </div>
       </div>
-      <div class="kpi-icon-box kpi-icon-amber">
-        <i class="bi bi-hourglass-split"></i>
+      <div class="stat-number text-warning-color">{{ metrics.kpis.pending_reviews }}</div>
+    </div>
+    <div>
+      <div class="mini-progress-track">
+        <div class="mini-progress-fill bg-fill-warning" style="width: 45%;"></div>
+      </div>
+      <div class="stat-footer">
+        <span class="stat-trend text-secondary-color"><i class="bi bi-clock-history"></i> Queue Status</span>
+        <span class="small-label">In Review</span>
       </div>
     </div>
   </div>
 
-  <div class="col-md-3">
-    <div class="card-enterprise kpi-card hover-elevate">
-      <div>
-        <div class="kpi-title">Avg Risk Score</div>
-        <div class="kpi-value text-primary">{{ metrics.kpis.avg_risk_score }}<span class="fs-6 text-muted">/100</span></div>
-        <div class="small text-success mt-1"><i class="bi bi-check-circle-fill me-1"></i>Accuracy 98.4%</div>
+  <!-- Card 4: Average Risk Score -->
+  <div class="stat-card hover-lift">
+    <div>
+      <div class="stat-header">
+        <span class="stat-title">Average Risk Score</span>
+        <div class="stat-icon-box stat-icon-emerald">
+          <i class="bi bi-speedometer2"></i>
+        </div>
       </div>
-      <div class="kpi-icon-box kpi-icon-emerald">
-        <i class="bi bi-speedometer2"></i>
+      <div class="stat-number text-primary-color">{{ metrics.kpis.avg_risk_score }}<span class="fs-6 text-muted-color">/100</span></div>
+    </div>
+    <div>
+      <div class="mini-progress-track">
+        <div class="mini-progress-fill bg-fill-success" style="width: {{ metrics.kpis.avg_risk_score }}%;"></div>
+      </div>
+      <div class="stat-footer">
+        <span class="stat-trend text-success-color"><i class="bi bi-check-circle-fill"></i> Accuracy 98.4%</span>
+        <span class="small-label">Score Index</span>
       </div>
     </div>
   </div>
 </div>
 
-<!-- 2. ANALYTICS & CHARTS ROW -->
-<div class="row g-3 mb-4">
-  <!-- Weekly Analytics Line Chart -->
-  <div class="col-lg-8">
-    <div class="card-enterprise h-100 mb-0">
-      <div class="card-header-clean">
-        <div class="fw-bold text-dark"><i class="bi bi-graph-up-arrow me-2 text-primary"></i>Weekly Contract Scan Analytics</div>
-        <span class="badge bg-light text-secondary border">Last 7 Days</span>
+<!-- 2. ANALYTICS SECTION (70% / 30% Layout) -->
+<div class="analytics-grid">
+  <!-- 70%: Weekly Analytics Chart Card -->
+  <div class="chart-card">
+    <div class="card-header-clean">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-graph-up-arrow text-primary-color fs-5"></i>
+        <h3 class="card-title">Weekly Contract Scan Analytics</h3>
       </div>
-      <div class="card-body-clean">
-        <canvas id="weeklyAnalyticsChart" height="110"></canvas>
-      </div>
+      <span class="badge-custom badge-soft-neutral">Last 7 Days</span>
+    </div>
+    <div class="chart-container">
+      <canvas id="weeklyAnalyticsChart"></canvas>
     </div>
   </div>
 
-  <!-- Risk Distribution Donut Chart -->
-  <div class="col-lg-4">
-    <div class="card-enterprise h-100 mb-0">
-      <div class="card-header-clean">
-        <div class="fw-bold text-dark"><i class="bi bi-pie-chart-fill me-2 text-primary"></i>Risk Distribution</div>
+  <!-- 30%: Risk Distribution Donut Chart Card -->
+  <div class="chart-card">
+    <div class="card-header-clean">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-pie-chart-fill text-primary-color fs-5"></i>
+        <h3 class="card-title">Risk Distribution</h3>
       </div>
-      <div class="card-body-clean d-flex flex-column align-items-center justify-content-center">
-        <div style="width: 200px; height: 200px;">
-          <canvas id="riskDistributionChart"></canvas>
-        </div>
-        <div class="d-flex justify-content-center gap-3 mt-3 w-100">
-          <div class="text-center"><span class="badge bg-success-subtle text-success border">Low: {{ metrics.risk_distribution.LOW }}</span></div>
-          <div class="text-center"><span class="badge bg-warning-subtle text-warning border">Med: {{ metrics.risk_distribution.MEDIUM }}</span></div>
-          <div class="text-center"><span class="badge bg-danger-subtle text-danger border">High: {{ metrics.risk_distribution.HIGH }}</span></div>
-        </div>
+    </div>
+    <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1">
+      <div style="width: 210px; height: 210px; position: relative;">
+        <canvas id="riskDistributionChart"></canvas>
+      </div>
+      <div class="d-flex justify-content-center gap-2 mt-4 w-100">
+        <span class="badge-custom badge-soft-success">Low: {{ metrics.risk_distribution.LOW }}</span>
+        <span class="badge-custom badge-soft-warning">Med: {{ metrics.risk_distribution.MEDIUM }}</span>
+        <span class="badge-custom badge-soft-danger">High: {{ metrics.risk_distribution.HIGH|add:metrics.risk_distribution.CRITICAL }}</span>
       </div>
     </div>
   </div>
 </div>
 
-<!-- 3. RECENT UPLOADS TABLE & QUICK ACTIONS -->
-<div class="row g-3">
-  <!-- Recent Contracts Table -->
-  <div class="col-lg-9">
-    <div class="card-enterprise mb-0">
-      <div class="card-header-clean">
-        <div class="fw-bold text-dark"><i class="bi bi-clock-history me-2 text-primary"></i>Recent Contract Audits</div>
-        <a href="{% url 'document_list' %}" class="btn btn-link btn-sm text-primary p-0 text-decoration-none fw-semibold">View All <i class="bi bi-arrow-right"></i></a>
-      </div>
-      <div class="table-responsive">
-        <table class="table table-enterprise align-middle">
-          <thead>
-            <tr>
-              <th>Contract Title</th>
-              <th>Uploaded By</th>
-              <th>Status</th>
-              <th>Risk Score</th>
-              <th>Uploaded At</th>
-              <th class="text-end">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for doc in metrics.recent_documents %}
-            <tr>
-              <td>
-                <div class="fw-bold text-dark">{{ doc.title }}</div>
-                <div class="small text-muted">{{ doc.formatted_size }} | {{ doc.page_count }} Pages</div>
-              </td>
-              <td>{{ doc.uploaded_by.username|default:"System" }}</td>
-              <td>
-                <span class="badge badge-status badge-status-{{ doc.status }}">
-                  {{ doc.get_status_display }}
-                </span>
-              </td>
-              <td>
-                {% if doc.risk_analysis %}
-                  <span class="badge badge-status badge-risk-{{ doc.risk_analysis.risk_level }}">
-                    {{ doc.risk_analysis.overall_risk_score }}/100 - {{ doc.risk_analysis.risk_level }}
-                  </span>
-                {% else %}
-                  <span class="badge bg-light text-muted">Pending</span>
-                {% endif %}
-              </td>
-              <td class="text-muted small">{{ doc.created_at|date:"M d, Y" }}</td>
-              <td class="text-end">
-                <a href="{% url 'document_detail' doc.id %}" class="btn btn-sm btn-outline-custom">
-                  <i class="bi bi-eye-fill me-1"></i> Workspace
-                </a>
-              </td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="6" class="text-center py-4 text-muted">
-                No contracts uploaded yet. Click "New Contract Scan" to get started!
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+<!-- 3. RECENT CONTRACTS TABLE -->
+<div class="table-container-card">
+  <div class="card-header-clean px-4 py-3">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-clock-history text-primary-color fs-5"></i>
+      <h3 class="card-title">Recent Contract Audits</h3>
     </div>
+    <a href="{% url 'document_list' %}" class="btn-enterprise btn-ghost-custom btn-sm-custom">
+      View All <i class="bi bi-arrow-right ms-1"></i>
+    </a>
   </div>
 
-  <!-- Quick Actions Panel -->
-  <div class="col-lg-3">
-    <div class="card-enterprise mb-0">
-      <div class="card-header-clean">
-        <div class="fw-bold text-dark"><i class="bi bi-lightning-charge-fill me-2 text-warning"></i>Quick Actions</div>
-      </div>
-      <div class="card-body-clean d-flex flex-column gap-2">
-        <a href="{% url 'document_upload' %}" class="btn btn-outline-custom w-100 text-start py-2.5">
-          <i class="bi bi-file-earmark-arrow-up text-primary me-2 fs-5"></i> Upload PDF Contract
-        </a>
-
-        <a href="{% url 'document_list' %}?risk=HIGH" class="btn btn-outline-custom w-100 text-start py-2.5">
-          <i class="bi bi-shield-exclamation text-danger me-2 fs-5"></i> Review High Risk Items
-        </a>
-
-        <a href="{% url 'document_list' %}" class="btn btn-outline-custom w-100 text-start py-2.5">
-          <i class="bi bi-search text-info me-2 fs-5"></i> Contract Repository
-        </a>
-
-        <hr class="my-2">
-
-        <div class="p-3 bg-light rounded-3 border">
-          <div class="fw-bold text-dark small mb-1"><i class="bi bi-info-circle text-primary me-1"></i> System Engine Status</div>
-          <div class="small text-muted">PyMuPDF Text Engine & spaCy Rule-based NLP are fully active and online.</div>
-        </div>
-      </div>
-    </div>
+  <div class="table-responsive">
+    <table class="table-enterprise">
+      <thead>
+        <tr>
+          <th>Contract Title</th>
+          <th>Company / Parties</th>
+          <th>Uploaded At</th>
+          <th>Risk Score</th>
+          <th>Status</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for doc in metrics.recent_documents %}
+        <tr>
+          <td>
+            <div class="fw-semibold text-dark">{{ doc.title }}</div>
+            <div class="small-label text-muted-color">{{ doc.formatted_size }} | {{ doc.page_count }} Pages</div>
+          </td>
+          <td>
+            {% if doc.metadata and doc.metadata.company_names %}
+              <div class="fw-medium text-dark">{{ doc.metadata.company_names|slice:":2"|join:", " }}</div>
+            {% else %}
+              <span class="text-muted">Extracting...</span>
+            {% endif %}
+          </td>
+          <td>{{ doc.created_at|date:"M d, Y" }}</td>
+          <td>
+            {% if doc.risk_analysis %}
+              <span class="badge-custom {% if doc.risk_analysis.risk_level == 'HIGH' or doc.risk_analysis.risk_level == 'CRITICAL' %}badge-soft-danger{% elif doc.risk_analysis.risk_level == 'MEDIUM' %}badge-soft-warning{% else %}badge-soft-success{% endif %}">
+                Risk {{ doc.risk_analysis.overall_risk_score }}/100
+              </span>
+            {% else %}
+              <span class="badge-custom badge-soft-neutral">Pending</span>
+            {% endif %}
+          </td>
+          <td>
+            <span class="badge-custom badge-status-{{ doc.status }}">
+              {{ doc.get_status_display }}
+            </span>
+          </td>
+          <td class="text-end">
+            <a href="{% url 'document_detail' doc.id %}" class="btn-enterprise btn-outline-custom btn-sm-custom">
+              <i class="bi bi-eye-fill me-1"></i> Workspace
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="text-center py-5 text-muted">
+            No contracts uploaded yet. Click "New Contract Scan" to get started!
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
 
@@ -216,31 +232,39 @@ document.addEventListener('DOMContentLoaded', function() {
         {
           label: 'Total Scanned Contracts',
           data: {{ metrics.weekly_analytics.uploads|safe }},
-          borderColor: '#0f52ba',
-          backgroundColor: 'rgba(15, 82, 186, 0.08)',
+          borderColor: '#2563EB',
+          backgroundColor: 'rgba(37, 99, 235, 0.06)',
           fill: true,
           tension: 0.35,
-          borderWidth: 2.5
+          borderWidth: 2.5,
+          pointRadius: 4,
+          pointBackgroundColor: '#2563EB'
         },
         {
           label: 'High-Risk Flags',
           data: {{ metrics.weekly_analytics.high_risks|safe }},
-          borderColor: '#ef4444',
-          backgroundColor: 'rgba(239, 68, 68, 0.08)',
+          borderColor: '#EF4444',
+          backgroundColor: 'rgba(239, 68, 68, 0.06)',
           fill: true,
           tension: 0.35,
-          borderWidth: 2
+          borderWidth: 2,
+          pointRadius: 4,
+          pointBackgroundColor: '#EF4444'
         }
       ]
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       plugins: {
-        legend: { position: 'top' }
+        legend: {
+          position: 'top',
+          labels: { font: { family: 'Inter', size: 13, weight: 500 }, usePointStyle: true, boxWidth: 8 }
+        }
       },
       scales: {
-        y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
-        x: { grid: { display: false } }
+        y: { beginAtZero: true, grid: { color: '#F3F4F6' }, ticks: { font: { family: 'Inter', size: 12 } } },
+        x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 12 } } }
       }
     }
   });
@@ -257,9 +281,9 @@ document.addEventListener('DOMContentLoaded', function() {
           {{ metrics.risk_distribution.MEDIUM }},
           {{ metrics.risk_distribution.HIGH }} + {{ metrics.risk_distribution.CRITICAL }}
         ],
-        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
-        borderWidth: 2,
-        borderColor: '#ffffff'
+        backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
+        borderWidth: 3,
+        borderColor: '#FFFFFF'
       }]
     },
     options: {
@@ -268,7 +292,7 @@ document.addEventListener('DOMContentLoaded', function() {
       plugins: {
         legend: { display: false }
       },
-      cutout: '72%'
+      cutout: '74%'
     }
   });
 });

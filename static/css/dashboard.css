@@ -1,0 +1,217 @@
+/* ==================================================
+   LEXVISION AI - DASHBOARD & WORKSPACE (dashboard.css)
+   ================================================== */
+
+/* --- STATISTICS CARDS GRID (4 Equal Width Cards) --- */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-card);
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 168px;
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+  border-color: #CBD5E1;
+}
+
+.stat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.stat-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+.stat-icon-box {
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  transition: transform 150ms ease;
+}
+
+.stat-card:hover .stat-icon-box {
+  transform: scale(1.08);
+}
+
+.stat-icon-blue {
+  background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+  color: var(--primary);
+  border: 1px solid var(--primary-border);
+}
+
+.stat-icon-red {
+  background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
+  color: var(--danger);
+  border: 1px solid var(--danger-border);
+}
+
+.stat-icon-amber {
+  background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+  color: #D97706;
+  border: 1px solid var(--warning-border);
+}
+
+.stat-icon-emerald {
+  background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+  color: var(--success);
+  border: 1px solid var(--success-border);
+}
+
+.stat-number {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.stat-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+}
+
+.stat-trend {
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Mini Progress Bar */
+.mini-progress-track {
+  height: 6px;
+  width: 100%;
+  background-color: #F1F5F9;
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.mini-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 400ms ease;
+}
+
+.bg-fill-primary { background: linear-gradient(90deg, #2563EB, #0F52BA); }
+.bg-fill-danger { background: linear-gradient(90deg, #F87171, #EF4444); }
+.bg-fill-warning { background: linear-gradient(90deg, #FBBF24, #F59E0B); }
+.bg-fill-success { background: linear-gradient(90deg, #34D399, #10B981); }
+
+/* --- ANALYTICS 70% / 30% GRID --- */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: 7fr 3fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.chart-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-container {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 270px;
+}
+
+/* --- SPLIT-SCREEN WORKSPACE (50% / 50%) --- */
+.split-workspace {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  height: calc(100vh - var(--navbar-height) - 100px);
+}
+
+.pdf-viewer-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pdf-viewer-header {
+  padding: 14px 20px;
+  background-color: #F8FAFC;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pdf-viewer-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.intelligence-panel-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* Clause Risk Card Item */
+.clause-risk-item {
+  padding: 18px 22px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  border-left-width: 5px;
+  background-color: #FFFFFF;
+  box-shadow: var(--shadow-xs);
+  margin-bottom: 16px;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.clause-risk-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.clause-risk-item.critical { border-left-color: var(--danger); background-color: #FEF2F2; }
+.clause-risk-item.high { border-left-color: var(--danger); background-color: #FEF2F2; }
+.clause-risk-item.medium { border-left-color: var(--warning); background-color: #FFFBEB; }
+.clause-risk-item.low { border-left-color: var(--success); background-color: #ECFDF5; }

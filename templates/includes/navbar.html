@@ -1,42 +1,57 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
-    <div class="container">
-
-        <a class="navbar-brand fw-bold" href="#">
-            <i class="bi bi-file-earmark-text"></i>
-            LexVision
-        </a>
-
-        <button class="navbar-toggler"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbar">
-
-            <span class="navbar-toggler-icon"></span>
-
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbar">
-
-            <ul class="navbar-nav ms-auto">
-
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Dashboard</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Upload</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Reports</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Profile</a>
-                </li>
-
-            </ul>
-
-        </div>
-
+{% load static %}
+<header class="app-navbar">
+  <div class="d-flex align-items-center gap-3">
+    <button class="btn btn-light btn-sm d-lg-none rounded-2 border p-2" type="button" id="sidebarToggleBtn" aria-label="Toggle Sidebar">
+      <i class="bi bi-list fs-5"></i>
+    </button>
+    
+    <!-- Search Box (Width 420px, Rounded) -->
+    <div class="nav-search-bar" style="width: 420px;">
+      <i class="bi bi-search"></i>
+      <input type="text" id="globalSearchInput" class="form-input-custom" style="padding-left: 42px; border-radius: 9999px; height: 42px;" placeholder="Search contracts, clauses, parties, governing law..." autocomplete="off">
+      <div id="globalSearchResults" style="position: absolute; top: 110%; left: 0; right: 0; z-index: 1050; display: none;"></div>
     </div>
-</nav>
+  </div>
+
+  <!-- Right Header Controls -->
+  <div class="d-flex align-items-center gap-3">
+    <!-- Live Status Indicator -->
+    <div class="d-none d-md-flex align-items-center gap-2 px-3 py-1 bg-light rounded-pill border small">
+      <span class="pulse-indicator"></span>
+      <span class="fw-semibold text-secondary" style="font-size: 13px;">NLP Engine Active</span>
+    </div>
+
+    <!-- Notifications Bell Icon -->
+    <button type="button" class="btn btn-ghost-custom btn-sm-custom position-relative p-2" title="Notifications">
+      <i class="bi bi-bell fs-5 text-secondary"></i>
+      <span class="position-absolute top-0 start-100 translate-middle p-1 bg-primary border border-light rounded-circle">
+        <span class="visually-hidden">New notifications</span>
+      </span>
+    </button>
+
+    <!-- Upload Button (44px height) -->
+    <a href="{% url 'document_upload' %}" class="btn-enterprise btn-primary-custom d-none d-sm-inline-flex">
+      <i class="bi bi-cloud-arrow-up-fill"></i> Upload Contract
+    </a>
+
+    {% if user.is_authenticated %}
+    <div class="dropdown">
+      <button class="btn btn-light rounded-pill border px-3 btn-sm dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" style="height: 44px;">
+        <span class="badge-custom badge-soft-primary px-2" style="font-weight:600;">{{ user.role|default:"USER" }}</span>
+        <span class="fw-semibold text-dark">{{ user.username }}</span>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 ms-2" style="border-radius: 12px;">
+        <li><a class="dropdown-menu-item dropdown-item py-2" href="{% url 'profile' %}"><i class="bi bi-person me-2"></i> Profile</a></li>
+        <li><a class="dropdown-menu-item dropdown-item py-2" href="{% url 'settings' %}"><i class="bi bi-gear me-2"></i> Settings</a></li>
+        {% if user.is_staff or user.is_superuser or user.is_admin %}
+        <li><a class="dropdown-menu-item dropdown-item py-2 text-primary" href="/admin/" target="_blank"><i class="bi bi-shield-lock me-2"></i> Django Admin</a></li>
+        {% endif %}
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-menu-item dropdown-item py-2 text-danger" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right me-2"></i> Logout</a></li>
+      </ul>
+    </div>
+    {% else %}
+    <a href="{% url 'login' %}" class="btn-enterprise btn-outline-custom">Login</a>
+    {% endif %}
+  </div>
+</header>

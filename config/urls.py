@@ -6,7 +6,7 @@ from django.conf.urls.static import static
 # Brand Django Admin
 admin.site.site_header = "LexVision AI Administration"
 admin.site.site_title = "LexVision AI Legal Tech"
-admin.site.index_title = "Platform Management Portal"
+admin.site.index_title = "Contract Intelligence Platform Portal"
 
 urlpatterns = [
     path('admin/', admin.site.urls),

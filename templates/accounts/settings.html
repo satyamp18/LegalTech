@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Settings | LexVision AI{% endblock %}
+{% block title %}System Settings | LexVision AI{% endblock %}
 
 {% block content %}
 
@@ -9,21 +9,22 @@
   <div class="col-lg-8">
 
     <div class="mb-4">
-      <h3 class="fw-bold text-dark mb-1">System & Risk Settings</h3>
-      <p class="text-muted small">Configure NLP rule weights, risk thresholds, and API authentication keys.</p>
+      <h1 class="page-title mb-1">System & Risk Settings</h1>
+      <p class="page-subtitle">Configure NLP rule weights, risk thresholds, and API authentication tokens.</p>
     </div>
 
+    <!-- Risk Calibration Card -->
     <div class="card-enterprise mb-4">
-      <div class="card-header-clean">
-        <div class="fw-bold text-dark"><i class="bi bi-shield-check me-2 text-primary"></i>Risk Engine Calibration</div>
+      <div class="card-header-clean py-2">
+        <h3 class="card-title"><i class="bi bi-shield-check text-primary-color me-2"></i>Risk Engine Calibration</h3>
       </div>
-      <div class="card-body-clean p-4">
-        <div class="mb-3">
-          <label class="form-label small fw-bold text-dark">High-Risk Sensitivity Threshold</label>
+      <div class="card-body-clean">
+        <div class="mb-4">
+          <label class="small-label mb-2">High-Risk Sensitivity Threshold</label>
           <input type="range" class="form-range" min="30" max="90" value="70" id="riskRange">
-          <div class="d-flex justify-content-between small text-muted">
+          <div class="d-flex justify-content-between small-label text-muted-color mt-1">
             <span>Conservative (Score 50+)</span>
-            <span class="fw-bold text-primary">Standard (Score 70+)</span>
+            <span class="fw-bold text-primary-color">Standard (Score 70+)</span>
             <span>Permissive (Score 85+)</span>
           </div>
         </div>
@@ -40,15 +41,16 @@
       </div>
     </div>
 
+    <!-- REST API Access Card -->
     <div class="card-enterprise">
-      <div class="card-header-clean">
-        <div class="fw-bold text-dark"><i class="bi bi-key-fill me-2 text-warning"></i>REST API Access Token</div>
+      <div class="card-header-clean py-2">
+        <h3 class="card-title"><i class="bi bi-key-fill text-warning-color me-2"></i>REST API Access Token</h3>
       </div>
-      <div class="card-body-clean p-4">
-        <p class="small text-muted mb-3">Use SimpleJWT Bearer Authentication to integrate LexVision AI with enterprise systems (Salesforce, SAP, DocuSign).</p>
-        <div class="input-group mb-2">
-          <input type="text" class="form-control font-monospace small bg-light" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Active Bearer Token)" readonly>
-          <button class="btn btn-outline-custom" onclick="alert('JWT Token endpoint is available at /api/v1/auth/token/')">View Docs</button>
+      <div class="card-body-clean">
+        <p class="small text-secondary mb-3">Use SimpleJWT Bearer Authentication to integrate LexVision AI with enterprise systems (Salesforce, SAP, DocuSign).</p>
+        <div class="d-flex gap-2">
+          <input type="text" class="form-input-custom font-monospace small bg-light" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (Active Bearer Token)" readonly>
+          <button class="btn-enterprise btn-outline-custom" onclick="alert('JWT Token endpoint is available at /api/v1/auth/token/')">View Docs</button>
         </div>
       </div>
     </div>

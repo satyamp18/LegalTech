@@ -18,6 +18,9 @@ class ReportGeneratorService:
 
     @staticmethod
     def generate_json_report(document):
+        meta = getattr(document, 'metadata', None)
+        risk = getattr(document, 'risk_analysis', None)
+
         data = {
             'platform': 'LexVision AI – Contract Intelligence Platform',
             'contract_id': document.id,
@@ -27,18 +30,18 @@ class ReportGeneratorService:
             'file_size': document.formatted_size(),
             'page_count': document.page_count,
             'metadata': {
-                'companies': getattr(document.metadata, 'company_names', []),
-                'contract_parties': getattr(document.metadata, 'contract_parties', []),
-                'effective_date': getattr(document.metadata, 'effective_date', 'N/A'),
-                'expiration_date': getattr(document.metadata, 'expiration_date', 'N/A'),
-                'duration': getattr(document.metadata, 'contract_duration', 'N/A'),
-                'governing_law': getattr(document.metadata, 'governing_law', 'N/A'),
-                'jurisdiction': getattr(document.metadata, 'jurisdiction', 'N/A'),
+                'companies': getattr(meta, 'company_names', []) if meta else [],
+                'contract_parties': getattr(meta, 'contract_parties', []) if meta else [],
+                'effective_date': getattr(meta, 'effective_date', 'N/A') if meta else 'N/A',
+                'expiration_date': getattr(meta, 'expiration_date', 'N/A') if meta else 'N/A',
+                'duration': getattr(meta, 'contract_duration', 'N/A') if meta else 'N/A',
+                'governing_law': getattr(meta, 'governing_law', 'N/A') if meta else 'N/A',
+                'jurisdiction': getattr(meta, 'jurisdiction', 'N/A') if meta else 'N/A',
             },
             'risk_analysis': {
-                'overall_risk_score': document.risk_analysis.overall_risk_score if hasattr(document, 'risk_analysis') else 0,
-                'risk_level': document.risk_analysis.risk_level if hasattr(document, 'risk_analysis') else 'N/A',
-                'summary': document.risk_analysis.risk_summary if hasattr(document, 'risk_analysis') else 'N/A',
+                'overall_risk_score': risk.overall_risk_score if risk else 0,
+                'risk_level': risk.risk_level if risk else 'N/A',
+                'summary': risk.risk_summary if risk else 'N/A',
                 'detected_risk_clauses': [
                     {
                         'title': item.title,
@@ -46,7 +49,7 @@ class ReportGeneratorService:
                         'explanation': item.explanation,
                         'highlighted_text': item.highlighted_text,
                         'recommendation': item.recommendation
-                    } for item in (document.risk_analysis.risk_items.all() if hasattr(document, 'risk_analysis') else [])
+                    } for item in (risk.risk_items.all() if risk else [])
                 ]
             },
             'categorized_clauses': [

@@ -1,11 +1,18 @@
-<footer class="bg-light border-top mt-5 py-3">
-
-    <div class="container text-center">
-
-        <small>
-            © 2026 LexVision • Automated Contract Parsing & Risk Extraction Engine
-        </small>
-
+<footer class="app-footer py-3 px-4 mt-auto border-top bg-white">
+  <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-2 text-muted small">
+    <div class="d-flex align-items-center gap-2">
+      <span class="fw-bold text-dark">LexVision AI</span>
+      <span>•</span>
+      <span>Contract Intelligence Platform &copy; 2026 Enterprise Legal Systems</span>
     </div>
-
+    
+    <div class="d-flex align-items-center gap-3">
+      <span class="badge bg-light text-secondary border fw-normal">v2.5 Enterprise Edition</span>
+      <a href="{% url 'document_list' %}" class="text-decoration-none text-muted hover-primary">Contracts</a>
+      <a href="{% url 'profile' %}" class="text-decoration-none text-muted hover-primary">Account</a>
+      {% if user.is_staff or user.is_superuser or user.is_admin %}
+      <a href="/admin/" target="_blank" class="text-decoration-none text-primary fw-semibold">Django Admin</a>
+      {% endif %}
+    </div>
+  </div>
 </footer>

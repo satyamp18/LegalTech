@@ -84,7 +84,7 @@ python manage.py makemigrations
 python manage.py migrate
 
 # Seed demo data (Creates Admin, Lawyer, Paralegal accounts & sample contracts)
-python manage.py seed_demo_data
+python manage.py seed_data
 
 # Start local server
 python manage.py runserver 8000

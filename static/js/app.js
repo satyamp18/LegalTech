@@ -1,10 +1,12 @@
 /**
- * LexVision AI – Global Application JavaScript
+ * LexVision AI – Global Enterprise Application JS (app.js)
  */
 
 document.addEventListener('DOMContentLoaded', function () {
   initGlobalSearch();
   initAutoDismissAlerts();
+  initSidebarToggle();
+  initTabsHandler();
 });
 
 /* Helper to get CSRF token from cookies */
@@ -21,6 +23,32 @@ function getCookie(name) {
     }
   }
   return cookieValue;
+}
+
+/* Mobile Sidebar Drawer Toggle */
+function initSidebarToggle() {
+  const toggleBtn = document.getElementById('sidebarToggleBtn');
+  const closeBtn = document.getElementById('sidebarCloseBtn');
+  const sidebar = document.getElementById('appSidebar');
+  const backdrop = document.getElementById('sidebarBackdrop');
+
+  if (!sidebar) return;
+
+  function openSidebar() {
+    sidebar.classList.add('show');
+    if (backdrop) backdrop.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeSidebar() {
+    sidebar.classList.remove('show');
+    if (backdrop) backdrop.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  if (toggleBtn) toggleBtn.addEventListener('click', openSidebar);
+  if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
+  if (backdrop) backdrop.addEventListener('click', closeSidebar);
 }
 
 /* Global Search Dropdown Autocomplete */
@@ -51,16 +79,16 @@ function initGlobalSearch() {
         .then(response => response.json())
         .then(data => {
           if (data.results && data.results.length > 0) {
-            let html = '<div class="list-group list-group-flush shadow-lg border rounded-3 overflow-hidden">';
+            let html = '<div class="list-group list-group-flush shadow-lg border rounded-3 overflow-hidden" style="background:#fff;">';
             data.results.forEach(item => {
-              const badgeClass = item.risk_level === 'CRITICAL' || item.risk_level === 'HIGH' ? 'bg-danger' : (item.risk_level === 'MEDIUM' ? 'bg-warning text-dark' : 'bg-success');
+              const badgeClass = item.risk_level === 'CRITICAL' || item.risk_level === 'HIGH' ? 'badge-soft-danger' : (item.risk_level === 'MEDIUM' ? 'badge-soft-warning' : 'badge-soft-success');
               html += `
-                <a href="/contracts/${item.id}/" class="list-group-item list-group-item-action p-3 d-flex justify-content-between align-items-center">
+                <a href="/contracts/${item.id}/" class="list-group-item list-group-item-action p-3 d-flex justify-content-between align-items-center text-decoration-none">
                   <div>
                     <div class="fw-bold text-dark mb-1">${escapeHtml(item.title)}</div>
                     <small class="text-muted"><i class="bi bi-clock me-1"></i>${item.created_at} | Status: ${item.status}</small>
                   </div>
-                  <span class="badge ${badgeClass} rounded-pill">Risk ${item.risk_score}/100</span>
+                  <span class="badge-custom ${badgeClass}">Risk ${item.risk_score}/100</span>
                 </a>
               `;
             });
@@ -84,13 +112,44 @@ function initGlobalSearch() {
   });
 }
 
+/* Auto Dismiss Flash Messages */
 function initAutoDismissAlerts() {
   const alerts = document.querySelectorAll('.alert-dismissible');
   alerts.forEach(alert => {
     setTimeout(() => {
-      const bsAlert = new bootstrap.Alert(alert);
-      bsAlert.close();
+      if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+        const bsAlert = bootstrap.Alert.getInstance(alert) || new bootstrap.Alert(alert);
+        if (bsAlert) bsAlert.close();
+      }
     }, 5000);
+  });
+}
+
+/* Custom Workspace Tab Switching Handler */
+function initTabsHandler() {
+  const tabLinks = document.querySelectorAll('.nav-tab-item');
+  if (!tabLinks.length) return;
+
+  tabLinks.forEach(link => {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      const targetTabId = this.getAttribute('data-tab');
+
+      // Deactivate all tab links
+      tabLinks.forEach(l => l.classList.remove('active'));
+      // Activate clicked
+      this.classList.add('active');
+
+      // Hide all tab content panes
+      const tabContents = document.querySelectorAll('.tab-content-pane');
+      tabContents.forEach(pane => pane.style.display = 'none');
+
+      // Show target tab pane
+      const targetPane = document.getElementById(targetTabId);
+      if (targetPane) {
+        targetPane.style.display = 'block';
+      }
+    });
   });
 }
 

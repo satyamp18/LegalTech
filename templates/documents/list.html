@@ -5,67 +5,63 @@
 
 {% block content %}
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<!-- Header Title Area -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
   <div>
-    <h3 class="fw-bold text-dark mb-1">Contract Intelligence Repository</h3>
-    <p class="text-muted small mb-0">Browse, filter, and review parsed legal documents and risk scores.</p>
+    <h1 class="page-title mb-1">Contract Intelligence Repository</h1>
+    <p class="page-subtitle">Browse, filter, and review parsed legal documents, clauses, and risk metrics.</p>
   </div>
-  <a href="{% url 'document_upload' %}" class="btn btn-primary-custom btn-sm">
-    <i class="bi bi-cloud-upload me-1"></i> Upload Contract
+  <a href="{% url 'document_upload' %}" class="btn-enterprise btn-primary-custom mt-3 mt-md-0">
+    <i class="bi bi-cloud-arrow-up-fill"></i> Upload Contract
   </a>
 </div>
 
 <!-- FILTER BAR CARD -->
 <div class="card-enterprise mb-4">
-  <div class="card-body-clean">
-    <form method="GET" action="{% url 'document_list' %}" class="row g-3 align-items-center">
-      <!-- Search input -->
-      <div class="col-md-4">
-        <label class="form-label small fw-bold text-muted">Search Query</label>
-        <div class="input-group">
-          <span class="input-group-text bg-light"><i class="bi bi-search text-muted"></i></span>
-          <input type="text" name="q" class="form-control" placeholder="Title, Governing Law, Company..." value="{{ query }}">
-        </div>
-      </div>
+  <form method="GET" action="{% url 'document_list' %}" class="row g-3 align-items-end">
+    <!-- Search query input (44px) -->
+    <div class="col-md-4">
+      <label class="small-label mb-1">Search Query</label>
+      <input type="text" name="q" class="form-input-custom" placeholder="Search title, governing law, company..." value="{{ query }}">
+    </div>
 
-      <!-- Status Filter -->
-      <div class="col-md-3">
-        <label class="form-label small fw-bold text-muted">Contract Status</label>
-        <select name="status" class="form-select">
-          <option value="">All Statuses</option>
-          {% for code, name in status_choices %}
-            <option value="{{ code }}" {% if status_filter == code %}selected{% endif %}>{{ name }}</option>
-          {% endfor %}
-        </select>
-      </div>
+    <!-- Status Filter -->
+    <div class="col-md-3">
+      <label class="small-label mb-1">Contract Status</label>
+      <select name="status" class="form-select-custom w-100">
+        <option value="">All Statuses</option>
+        {% for code, name in status_choices %}
+          <option value="{{ code }}" {% if status_filter == code %}selected{% endif %}>{{ name }}</option>
+        {% endfor %}
+      </select>
+    </div>
 
-      <!-- Risk Filter -->
-      <div class="col-md-3">
-        <label class="form-label small fw-bold text-muted">Risk Level</label>
-        <select name="risk" class="form-select">
-          <option value="">All Risk Levels</option>
-          <option value="LOW" {% if risk_filter == 'LOW' %}selected{% endif %}>Low Risk</option>
-          <option value="MEDIUM" {% if risk_filter == 'MEDIUM' %}selected{% endif %}>Medium Risk</option>
-          <option value="HIGH" {% if risk_filter == 'HIGH' %}selected{% endif %}>High Risk</option>
-          <option value="CRITICAL" {% if risk_filter == 'CRITICAL' %}selected{% endif %}>Critical Risk</option>
-        </select>
-      </div>
+    <!-- Risk Filter -->
+    <div class="col-md-3">
+      <label class="small-label mb-1">Risk Level</label>
+      <select name="risk" class="form-select-custom w-100">
+        <option value="">All Risk Levels</option>
+        <option value="LOW" {% if risk_filter == 'LOW' %}selected{% endif %}>Low Risk</option>
+        <option value="MEDIUM" {% if risk_filter == 'MEDIUM' %}selected{% endif %}>Medium Risk</option>
+        <option value="HIGH" {% if risk_filter == 'HIGH' %}selected{% endif %}>High Risk</option>
+        <option value="CRITICAL" {% if risk_filter == 'CRITICAL' %}selected{% endif %}>Critical Risk</option>
+      </select>
+    </div>
 
-      <!-- Buttons -->
-      <div class="col-md-2 d-flex gap-2 align-self-end">
-        <button type="submit" class="btn btn-primary-custom w-100"><i class="bi bi-filter me-1"></i> Filter</button>
-        {% if query or status_filter or risk_filter %}
-          <a href="{% url 'document_list' %}" class="btn btn-outline-custom" title="Reset Filters"><i class="bi bi-arrow-counterclockwise"></i></a>
-        {% endif %}
-      </div>
-    </form>
-  </div>
+    <!-- Filter Actions -->
+    <div class="col-md-2 d-flex gap-2">
+      <button type="submit" class="btn-enterprise btn-primary-custom w-100"><i class="bi bi-funnel-fill"></i> Filter</button>
+      {% if query or status_filter or risk_filter %}
+        <a href="{% url 'document_list' %}" class="btn-enterprise btn-outline-custom" title="Reset Filters"><i class="bi bi-arrow-counterclockwise"></i></a>
+      {% endif %}
+    </div>
+  </form>
 </div>
 
-<!-- CONTRACTS TABLE -->
-<div class="card-enterprise">
+<!-- CONTRACTS REPOSITORY TABLE CARD -->
+<div class="table-container-card">
   <div class="table-responsive">
-    <table class="table table-enterprise align-middle">
+    <table class="table-enterprise">
       <thead>
         <tr>
           <th>Contract Title</th>
@@ -73,7 +69,7 @@
           <th>Uploaded By</th>
           <th>Status</th>
           <th>Risk Score</th>
-          <th>Date Uploaded</th>
+          <th>Uploaded At</th>
           <th class="text-end">Actions</th>
         </tr>
       </thead>
@@ -81,51 +77,51 @@
         {% for doc in documents %}
         <tr>
           <td>
-            <div class="fw-bold text-dark mb-0.5">
+            <div class="fw-semibold text-dark">
               <a href="{% url 'document_detail' doc.id %}" class="text-dark text-decoration-none hover-primary">
                 <i class="bi bi-file-earmark-pdf text-danger me-2"></i>{{ doc.title }}
               </a>
             </div>
-            <div class="small text-muted">
+            <div class="small-label text-muted-color mt-1">
               {{ doc.formatted_size }} | {{ doc.page_count }} Pages
               {% if doc.metadata and doc.metadata.company_names %}
-                | <span class="text-primary"><i class="bi bi-building me-1"></i>{{ doc.metadata.company_names|slice:":2"|join:", " }}</span>
+                | <span class="text-primary-color"><i class="bi bi-building me-1"></i>{{ doc.metadata.company_names|slice:":2"|join:", " }}</span>
               {% endif %}
             </div>
           </td>
           <td>
-            <span class="badge bg-light text-dark border">
+            <span class="badge-custom badge-soft-neutral">
               {{ doc.metadata.governing_law|default:"Not Specified" }}
             </span>
           </td>
           <td>{{ doc.uploaded_by.username|default:"System" }}</td>
           <td>
-            <span class="badge badge-status badge-status-{{ doc.status }}">
+            <span class="badge-custom badge-status-{{ doc.status }}">
               {{ doc.get_status_display }}
             </span>
           </td>
           <td>
             {% if doc.risk_analysis %}
-              <span class="badge badge-status badge-risk-{{ doc.risk_analysis.risk_level }}">
-                {{ doc.risk_analysis.overall_risk_score }}/100 - {{ doc.risk_analysis.risk_level }}
+              <span class="badge-custom {% if doc.risk_analysis.risk_level == 'HIGH' or doc.risk_analysis.risk_level == 'CRITICAL' %}badge-soft-danger{% elif doc.risk_analysis.risk_level == 'MEDIUM' %}badge-soft-warning{% else %}badge-soft-success{% endif %}">
+                Risk {{ doc.risk_analysis.overall_risk_score }}/100
               </span>
             {% else %}
-              <span class="badge bg-light text-muted">Pending</span>
+              <span class="badge-custom badge-soft-neutral">Pending</span>
             {% endif %}
           </td>
-          <td class="text-muted small">{{ doc.created_at|date:"M d, Y" }}</td>
+          <td class="text-muted-color small">{{ doc.created_at|date:"M d, Y" }}</td>
           <td class="text-end">
             <div class="dropdown">
-              <button class="btn btn-sm btn-light border dropdown-toggle" type="button" data-bs-toggle="dropdown">
+              <button class="btn-enterprise btn-outline-custom btn-sm-custom dropdown-toggle" type="button" data-bs-toggle="dropdown">
                 Options
               </button>
-              <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                <li><a class="dropdown-item" href="{% url 'document_detail' doc.id %}"><i class="bi bi-eye me-2"></i> View Workspace</a></li>
-                <li><a class="dropdown-item" href="{% url 'web_export_report' doc.id 'pdf' %}"><i class="bi bi-file-pdf me-2 text-danger"></i> Export PDF Report</a></li>
-                <li><a class="dropdown-item" href="{% url 'web_export_report' doc.id 'csv' %}"><i class="bi bi-file-earmark-excel me-2 text-success"></i> Export CSV Audit</a></li>
-                <li><a class="dropdown-item" href="{% url 'web_export_report' doc.id 'json' %}"><i class="bi bi-code-square me-2 text-primary"></i> Export JSON Data</a></li>
+              <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0" style="border-radius: 12px;">
+                <li><a class="dropdown-item py-2" href="{% url 'document_detail' doc.id %}"><i class="bi bi-eye me-2"></i> Workspace</a></li>
+                <li><a class="dropdown-item py-2" href="{% url 'web_export_report' doc.id 'pdf' %}"><i class="bi bi-file-pdf me-2 text-danger"></i> PDF Audit Report</a></li>
+                <li><a class="dropdown-item py-2" href="{% url 'web_export_report' doc.id 'csv' %}"><i class="bi bi-file-earmark-excel me-2 text-success"></i> CSV Dataset</a></li>
+                <li><a class="dropdown-item py-2" href="{% url 'web_export_report' doc.id 'json' %}"><i class="bi bi-code-square me-2 text-primary"></i> JSON Payload</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-primary" href="{% url 'web_trigger_reanalysis' doc.id %}"><i class="bi bi-arrow-repeat me-2"></i> Re-run Intelligence Scan</a></li>
+                <li><a class="dropdown-item py-2 text-primary" href="{% url 'web_trigger_reanalysis' doc.id %}"><i class="bi bi-arrow-repeat me-2"></i> Re-Scan Intelligence</a></li>
               </ul>
             </div>
           </td>
@@ -134,9 +130,9 @@
         <tr>
           <td colspan="7" class="text-center py-5">
             <i class="bi bi-folder2-open display-4 text-muted d-block mb-3"></i>
-            <h5 class="fw-bold text-dark">No contracts match your query</h5>
-            <p class="text-muted small">Try adjusting your filters or upload a new PDF document.</p>
-            <a href="{% url 'document_upload' %}" class="btn btn-primary-custom btn-sm mt-2">Upload Contract</a>
+            <h3 class="card-title mb-1">No contracts match your query</h3>
+            <p class="text-secondary small mb-3">Try adjusting your filters or upload a new PDF document.</p>
+            <a href="{% url 'document_upload' %}" class="btn-enterprise btn-primary-custom">Upload Contract</a>
           </td>
         </tr>
         {% endfor %}

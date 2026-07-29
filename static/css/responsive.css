@@ -1,0 +1,87 @@
+/* ==================================================
+   LEXGUARD AI - RESPONSIVE LAYOUT (responsive.css)
+   ================================================== */
+
+/* Mobile Backdrop Drawer Overlay */
+.sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(17, 24, 39, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 1025;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 200ms ease, visibility 200ms ease;
+}
+
+.sidebar-backdrop.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* RESPONSIVE MEDIA QUERIES */
+
+/* Tablet & Mobile Screens (< 1024px) */
+@media (max-width: 1023.98px) {
+  .app-sidebar {
+    transform: translateX(-100%);
+    box-shadow: var(--shadow-dropdown);
+  }
+
+  .app-sidebar.show {
+    transform: translateX(0);
+  }
+
+  .app-main {
+    margin-left: 0 !important;
+  }
+
+  .app-navbar {
+    padding: 0 20px !important;
+  }
+
+  .nav-search-bar {
+    width: 240px !important;
+  }
+
+  .content-body {
+    padding: 24px 20px !important;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
+  }
+
+  .analytics-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+
+  .split-workspace {
+    grid-template-columns: 1fr !important;
+    height: auto !important;
+  }
+
+  .pdf-viewer-card {
+    min-height: 480px;
+  }
+}
+
+/* Mobile Screens (< 640px) */
+@media (max-width: 639.98px) {
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .nav-search-bar {
+    display: none !important;
+  }
+
+  .content-body {
+    padding: 16px 12px !important;
+  }
+}

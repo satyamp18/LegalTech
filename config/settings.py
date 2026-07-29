@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     'apps.analysis',
     'apps.dashboard',
     'apps.reports',
+    'apps.extraction',
+    'apps.nlp_engine',
 ]
 
 MIDDLEWARE = [

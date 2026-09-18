@@ -8,6 +8,8 @@ from apps.analysis.services.nlp_service import NLPEngineService
 from apps.analysis.services.regex_service import RegexExtractionService
 from apps.analysis.services.clause_classifier import ClauseClassifierService
 from apps.analysis.services.risk_engine import RiskDetectionEngine
+from apps.analysis.services.gemini_service import GeminiService
+from apps.analysis.services.text_preprocessor import TextPreprocessingService
 
 logger = logging.getLogger(__name__)
 
@@ -15,23 +17,27 @@ logger = logging.getLogger(__name__)
 def run_contract_analysis_pipeline(document_id):
     """
     Complete Contract Analysis Orchestrator.
-    Extracts text, metadata, classifies clauses, and performs risk scoring.
+    Extracts text, cleans text, extracts metadata, summarizes via Gemini, classifies clauses, and performs risk scoring.
     """
     try:
         doc = Document.objects.get(id=document_id)
         doc.status = Document.Status.PROCESSING
         doc.save()
 
-        # Step 1: PDF Extraction
+        # Step 1: PDF Extraction & Text Cleaning
         file_path = doc.file.path
         pdf_data = PDFProcessingService.extract_pdf_data(file_path)
         raw_text = pdf_data['raw_text']
+        clean_text = TextPreprocessingService.clean_text(raw_text)
         doc.page_count = pdf_data['page_count']
         doc.save()
 
-        # Step 2: NLP Entities & Regex Metadata Extraction
-        nlp_entities = NLPEngineService.extract_entities(raw_text)
-        regex_meta = RegexExtractionService.extract_metadata(raw_text)
+        # Step 2: Gemini Executive Summary
+        ai_summary = GeminiService.summarize_contract(clean_text)
+
+        # Step 3: NLP Entities & Regex Metadata Extraction
+        nlp_entities = NLPEngineService.extract_entities(clean_text)
+        regex_meta = RegexExtractionService.extract_metadata(clean_text)
 
         # Merge companies
         all_companies = list(set(nlp_entities['companies'] + regex_meta['contract_parties']))
@@ -49,9 +55,11 @@ def run_contract_analysis_pipeline(document_id):
                     'governing_law': regex_meta['governing_law'],
                     'jurisdiction': regex_meta['jurisdiction'],
                     'contract_parties': regex_meta['contract_parties'],
-                    'raw_text': raw_text[:50000]
+                    'executive_summary': ai_summary,
+                    'raw_text': clean_text[:50000]
                 }
             )
+
 
             # Step 3: Sentence Breakdown & Clause Classification
             Clause.objects.filter(document=doc).delete()

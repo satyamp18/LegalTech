@@ -1,15 +1,47 @@
+# Environments
 venv/
+.venv/
+env/
+ENV/
+
+# Python Byte-compiled / cache files
 __pycache__/
 *.py[cod]
+*$py.class
+*.so
 
+# Environment Variables & Secrets
 .env
-db.sqlite3
+.env.local
+.env.*.local
+*.pem
 
+# SQLite Database
+db.sqlite3
+*.sqlite3
+*.db
+
+# Django User Uploads & Collected Static Assets
 media/
 staticfiles/
 
+# Operating System Files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDEs & Code Editors
 .vscode/
 .idea/
+*.swp
+*.swo
 
+# Testing & Coverage
 .pytest_cache/
 .coverage
+htmlcov/
+
+# Build & Package Distribution
+build/
+dist/
+*.egg-info/

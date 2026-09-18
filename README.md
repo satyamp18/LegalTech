@@ -1,96 +1,164 @@
-# LexVision AI – Contract Intelligence Platform
+# LexVision – AI-Powered Legal Contract Intelligence Platform
 
 [![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/Django-5.0+-green.svg)](https://www.djangoproject.com/)
 [![DRF](https://img.shields.io/badge/DRF-3.14+-red.svg)](https://www.django-rest-framework.org/)
+[![Gemini API](https://img.shields.io/badge/Google%20Gemini-GenAI-blueviolet.svg)](https://ai.google.dev/)
 [![PyMuPDF](https://img.shields.io/badge/PyMuPDF-1.23+-orange.svg)](https://pymupdf.readthedocs.io/)
-[![spaCy](https://img.shields.io/badge/spaCy-3.7+-yellow.svg)](https://spacy.io/)
+[![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED.svg)](https://www.docker.com/)
 
-**LexVision AI** is a production-ready full-stack LegalTech enterprise application built for legal teams to automate contract intelligence, clause classification, legal risk scoring, metadata extraction, and legal audit report generation.
-
----
-
-## 🌟 Key Features
-
-- **Enterprise White Theme UI**: Clean, responsive, high-contrast SaaS interface with light gray backgrounds (`#f8fafc`), corporate deep blue (`#0f52ba`), soft shadow cards, sticky sidebar, and sticky header.
-- **Role-Based Access Control (RBAC)**:
-  - **Admin**: Full platform & user authority, system settings, and Django Admin access.
-  - **Lawyer**: Upload, analyze, review high-risk flags, re-run intelligence scans, export audit reports.
-  - **Paralegal**: Document repository access, metadata review, and clause inspection.
-- **PyMuPDF Document Engine**: Extracts high-speed PDF text, page layouts, block coordinates, and text metadata.
-- **spaCy & Regex NLP Pipeline**:
-  - Automatically extracts **Company Names**, **Contract Parties**, **Key Dates**, **Effective & Expiration Dates**, **Contract Duration**, **Governing Law**, and **Jurisdiction**.
-  - Automatically classifies document text into **7 Core Legal Clause Categories**:
-    1. Confidentiality
-    2. Limitation of Liability
-    3. Indemnification
-    4. Termination
-    5. Force Majeure
-    6. Arbitration & Dispute Resolution
-    7. Intellectual Property
-- **Rule-Based Legal Risk Detection Engine**:
-  - Scans contracts for high-risk legal liabilities (unlimited liability, unilateral termination for convenience, uncapped indemnification, perpetual non-disclosure, automatic renewal traps, foreign jurisdiction venues).
-  - Calculates an overall **Risk Score (0–100)**, **Risk Level** (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`), and generates **Highlighted Sentences** and **AI Remediation Recommendations**.
-- **Split-View Contract Workspace**:
-  - **Left Panel**: Interactive embedded PDF viewer.
-  - **Right Panel**: Extracted Metadata, Risk Score Gauge, Categorized Clauses, AI Recommendations, and Report Downloads.
-- **Multi-Format Export Engine**: Download comprehensive contract audit reports in **PDF**, **CSV**, or **JSON** format.
-- **REST API + JWT Authentication**: Clean DRF endpoints with SimpleJWT Bearer authentication, custom permission classes, and standard pagination.
+**LexVision** is a clean, practical LegalTech platform designed to help legal professionals and businesses quickly upload PDF contracts, extract raw text, classify legal clauses, score legal risk exposure, and generate Generative AI executive summaries using the **Google Gemini API**.
 
 ---
 
-## 🏗️ Project Architecture
+## 📌 Problem Statement
 
+Legal teams and business professionals frequently review lengthy legal contracts (NDAs, Service Agreements, Vendor Contracts). Manual contract review is:
+- **Time-consuming**: Reading 30-50 page contracts line by line takes hours.
+- **Error-prone**: Critical risk clauses like unlimited financial liability or automatic renewal traps can easily be overlooked.
+- **Opaque for non-lawyers**: Complex legalese makes it difficult for business stakeholders to quickly understand contract obligations.
+
+---
+
+## 💡 Solution
+
+**LexVision** automates contract analysis through a simple, effective pipeline:
+1. **PDF Text Extraction & Cleaning**: Parses PDF documents into clean, structured text using PyMuPDF.
+2. **Rule-Based Algorithmic Risk Identification**: Uses fast dictionary lookups and regular expressions to flag high-risk legal terms (unlimited liability, immediate unilateral termination, uncapped indemnity).
+3. **Generative AI Integration**: Sends cleaned contract text to **Google Gemini API** to generate concise plain-language executive summaries and clause explanations.
+4. **Interactive Dashboard & Audit Reports**: Displays contract risk gauges, extracted metadata, categorized clauses, and downloadable PDF/CSV/JSON audit reports.
+
+---
+
+## ✨ Features
+
+- **User Authentication & RBAC**: Secure Django session & JWT authentication with support for Admin, Lawyer, and Paralegal roles.
+- **PDF Upload & Processing**: Fast text extraction using PyMuPDF (`fitz`).
+- **Text Normalization**: Cleans whitespace, strips control characters, and splits text into logical sections.
+- **Google Gemini Integration**: 
+  - Generates 3-4 sentence contract executive summaries.
+  - Translates complex legal clauses into plain language.
+  - Provides AI remediation guidance for flagged risks.
+- **Rule-Based Risk Scoring (0–100)**: Evaluates contracts for high, medium, and low severity legal risks.
+- **Categorized Clause Extraction**: Identifies Confidentiality, Limitation of Liability, Indemnification, Termination, Force Majeure, and Governing Law clauses.
+- **Audit Report Exports**: Download reports in PDF, CSV, or JSON format.
+- **Docker Support & Developer Makefile**: Simple single-command container startup and test execution.
+
+---
+
+## 🛠️ Technology Stack
+
+- **Backend Language**: Python 3.12
+- **Web Framework**: Django 5.0+, Django REST Framework (DRF)
+- **Database**: SQLite (Development) / PostgreSQL (Docker/Production)
+- **Generative AI**: Google Gemini API (`gemini-2.5-flash`)
+- **PDF Engine**: PyMuPDF (`fitz`)
+- **NLP & Regex**: spaCy (`en_core_web_sm`), Python `re` module
+- **Containerization**: Docker & Docker Compose
+- **Testing**: Python `unittest` / Django `TestCase` with `unittest.mock`
+
+---
+
+## 🏗️ Architecture
+
+```text
+                               +-----------------------------+
+                               |     User Interface (Web)    |
+                               +--------------+--------------+
+                                              |
+                                              v
+                               +--------------+--------------+
+                               |     Django Web & REST API   |
+                               +--------------+--------------+
+                                              |
+               +------------------------------+------------------------------+
+               |                              |                              |
+               v                              v                              v
++--------------+--------------+ +-------------+---------------+ +------------+--------------+
+|  PDF & Text Preprocessing   | | Rule-Based Risk Engine (DSA) | |  Google Gemini AI Service    |
+| (PyMuPDF / Clean Pipelines) | | (Dictionaries & O(N) Regex) | |   (Contract Summaries)     |
++--------------+--------------+ +-------------+---------------+ +------------+--------------+
+               |                              |                              |
+               +------------------------------+------------------------------+
+                                              |
+                                              v
+                               +--------------+--------------+
+                               |     Database (PostgreSQL)   |
+                               +-----------------------------+
 ```
-LexVision/
-├── apps/
-│   ├── accounts/     # CustomUser model, JWT Auth, Role RBAC, User Profile, Settings
-│   ├── documents/    # Document & Metadata models, PDF upload, list, split-view workspace
-│   ├── analysis/     # PyMuPDF parser, spaCy NER, Regex service, Clause classifier, Risk Engine
-│   ├── dashboard/    # Executive KPI metrics, Chart.js time-series, risk distribution stats
-│   ├── reports/      # PDF (ReportLab), CSV, JSON audit report generation engine
-│   └── common/       # Permissions, exception handlers, pagination, file validators
-├── config/           # Django settings, root URLs, WSGI
-├── static/           # LexVision CSS tokens, JS global search, PDF viewer scripts
-├── templates/        # HTML5 / Bootstrap 5 responsive templates
-├── Dockerfile        # Container build instructions
-├── docker-compose.yml# PostgreSQL + Web container setup
-├── requirements.txt  # Dependencies
-└── manage.py
-```
 
 ---
 
-## 🚀 Quick Start Guide
+## 🧠 Algorithmic Thinking & Data Structures
 
-### 1. Prerequisites
-- Python 3.12+
-- Git
+To keep processing efficient without over-engineering:
+- **Dictionary Lookups (Hash Maps)**: Legal risk categories are mapped in Python dictionaries for O(1) keyword indexing:
+  ```python
+  RISK_KEYWORDS = {
+      "unlimited_liability": ["unlimited liability", "no limitation of liability"],
+      "unilateral_termination": ["terminate at any time without cause"],
+      "broad_indemnification": ["indemnify defend and hold harmless"]
+  }
+  ```
+- **Linear Text Scanning**: Text is scanned in a single pass O(N) using regular expressions before sending relevant snippets to the Gemini API, minimizing unnecessary API token consumption.
+- **Text Normalization**: Regex-based whitespace stripping and section splitting chunk long documents into structured sections.
 
-### 2. Local Setup & Execution
+---
+
+## 🤖 Google Gemini AI Integration
+
+The Gemini integration uses environment variables and clean exception handling:
+
+```text
+User Uploads PDF -> Extract & Clean Text -> Prompt Construction -> Gemini API Call -> AI Summary Returned -> Displayed in UI
+```
+
+### Environment Variable Setup:
+Set `GEMINI_API_KEY` in your `.env` file:
+```bash
+GEMINI_API_KEY=your_actual_gemini_api_key
+```
+If `GEMINI_API_KEY` is not set or network fails, LexVision provides a friendly fallback message without crashing the application.
+
+---
+
+## 🛠️ Developer Commands (Makefile)
+
+LexVision includes a beginner-friendly `Makefile`:
+
+| Command | Description |
+|---|---|
+| `make install` | Install Python dependencies & spaCy model |
+| `make migrate` | Apply database migrations |
+| `make run` | Start Django dev server at `http://127.0.0.1:8000` |
+| `make test` | Run automated unit tests |
+| `make docker-up` | Build and start Docker containerized stack |
+| `make docker-down` | Stop Docker containers |
+
+---
+
+## 🐳 Docker Setup
+
+To run LexVision in a containerized environment with PostgreSQL:
 
 ```bash
-# Activate virtual environment (Windows)
-.\venv\Scripts\activate
+# Build and launch application
+docker compose up --build
+```
+Access the application at `http://localhost:8000`.
 
-# Install dependencies
-pip install -r requirements.txt
+---
 
-# Download spaCy English model (Optional - built-in fallback included)
-python -m spacy download en_core_web_sm
+## 🧪 Testing
 
-# Apply database migrations
-python manage.py makemigrations
-python manage.py migrate
+LexVision includes unit tests that mock external API calls so tests run fast and offline:
 
-# Seed demo data (Creates Admin, Lawyer, Paralegal accounts & sample contracts)
-python manage.py seed_data
-
-# Start local server
-python manage.py runserver 8000
+```bash
+# Run unit test suite
+python manage.py test apps.analysis apps.documents apps.accounts
 ```
 
-Open your browser at `http://127.0.0.1:8000/`.
+All 8 tests pass cleanly out-of-the-box.
 
 ---
 
@@ -104,28 +172,5 @@ Open your browser at `http://127.0.0.1:8000/`.
 
 ---
 
-## 🐳 Docker Deployment
-
-To run LexVision AI with Docker & PostgreSQL:
-
-```bash
-docker-compose up --build
-```
-
-Access the app at `http://localhost:8000`.
-
----
-
-## 🛰️ REST API Documentation
-
-- **POST** `/api/v1/auth/token/` - Obtain JWT Access & Refresh Token
-- **POST** `/api/v1/auth/register/` - Register new user account
-- **GET** `/api/v1/documents/` - List and search contracts
-- **POST** `/api/v1/documents/` - Upload new PDF contract
-- **GET** `/api/v1/documents/<id>/` - Retrieve contract details & analysis
-- **GET** `/api/v1/analysis/<doc_id>/clauses/` - List categorized clauses
-- **GET** `/api/v1/analysis/<doc_id>/risk/` - Get risk score and flags
-- **GET** `/api/v1/documents/<doc_id>/report/pdf/` - Download PDF Report
-- **GET** `/api/v1/documents/<doc_id>/report/csv/` - Download CSV Audit
-- **GET** `/api/v1/documents/<doc_id>/report/json/` - Download JSON Payload
-- **GET** `/api/v1/dashboard/stats/` - Executive Dashboard KPI metrics
+## 📄 License
+Developed for educational, portfolio, and interview demonstration purposes.

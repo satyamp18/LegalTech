@@ -67,7 +67,11 @@ class DocumentMetadata(models.Model):
     jurisdiction = models.CharField(max_length=255, blank=True, null=True)
     contract_parties = models.JSONField(default=list, help_text=_('Primary identified contract parties.'))
     total_clauses_extracted = models.IntegerField(default=0)
+    executive_summary = models.TextField(blank=True, null=True, help_text=_('AI generated executive summary of contract.'))
     raw_text = models.TextField(blank=True, null=True)
+
+
 
     def __str__(self):
         return f"Metadata for {self.document.title}"
+

@@ -1,5 +1,6 @@
 import re
 import logging
+from typing import Dict, List, Any
 from apps.analysis.models import RiskAnalysis, RiskClauseItem
 
 logger = logging.getLogger(__name__)
@@ -8,12 +9,21 @@ logger = logging.getLogger(__name__)
 class RiskDetectionEngine:
     """
     Rule-based Legal Risk Detection Engine.
-    Scans contract text and extracted clauses for high-risk legal terms,
-    calculates risk score (0-100), assigns risk level, and generates
-    actionable remediation recommendations.
+    Demonstrates basic algorithmic reasoning:
+    Uses Python dictionaries (hash maps) and regular expression patterns for O(N)
+    linear scanning of contract text to flag high-risk legal terms.
     """
 
-    RISK_RULES = [
+    # Algorithmic Keyword Mapping Dictionary for quick inspection & interview explanation
+    RISK_KEYWORDS: Dict[str, List[str]] = {
+        "unlimited_liability": ["unlimited liability", "no limitation of liability", "shall not be limited"],
+        "unilateral_termination": ["terminate at any time without cause", "terminate immediately", "convenience without penalty"],
+        "broad_indemnification": ["indemnify defend and hold harmless", "all losses costs damages"],
+        "perpetual_confidentiality": ["survive indefinitely", "in perpetuity", "forever"],
+        "auto_renewal": ["automatically renew", "auto-renew", "successive terms"]
+    }
+
+    RISK_RULES: List[Dict[str, Any]] = [
         {
             'id': 'unlimited_liability',
             'title': 'Unlimited Liability Risk',
@@ -72,14 +82,17 @@ class RiskDetectionEngine:
     ]
 
     @classmethod
-    def evaluate_contract(cls, text, clauses=None):
+    def evaluate_contract(cls, text: str, clauses: List[Any] = None) -> Dict[str, Any]:
+        """
+        Scans document text against legal risk rules and calculates overall risk score (0-100).
+        """
         risk_items = []
-        accumulated_score = 15  # Base baseline score
+        accumulated_score = 15  # Baseline starting score
 
         for rule in cls.RISK_RULES:
             match = re.search(rule['pattern'], text, re.IGNORECASE)
             if match:
-                # Check if negated
+                # Check if negated by a risk-mitigating clause
                 if 'negation_pattern' in rule and re.search(rule['negation_pattern'], text, re.IGNORECASE):
                     continue
 
@@ -120,7 +133,7 @@ class RiskDetectionEngine:
         }
 
     @staticmethod
-    def _extract_snippet(text, start, end, padding=120):
+    def _extract_snippet(text: str, start: int, end: int, padding: int = 120) -> str:
         snippet_start = max(0, start - padding)
         snippet_end = min(len(text), end + padding)
         snippet = text[snippet_start:snippet_end].replace('\n', ' ').strip()

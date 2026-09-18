@@ -10,6 +10,9 @@ from .serializers import ClauseSerializer, RiskAnalysisSerializer
 from .services.pipeline import run_contract_analysis_pipeline
 
 
+from apps.analysis.services.gemini_service import GeminiService
+
+
 class DocumentClausesAPIView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ClauseSerializer
@@ -43,6 +46,19 @@ class TriggerReanalysisAPIView(APIView):
         return Response({"error": "Failed to analyze document."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class ExplainClauseAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, clause_id):
+        clause = get_object_or_404(Clause, id=clause_id)
+        explanation = GeminiService.explain_clause(clause.text, clause.get_clause_type_display())
+        return Response({
+            "clause_id": clause.id,
+            "clause_type": clause.get_clause_type_display(),
+            "explanation": explanation
+        }, status=status.HTTP_200_OK)
+
+
 def trigger_reanalysis_web_view(request, doc_id):
     if not request.user.is_authenticated:
         return redirect('login')
@@ -50,3 +66,4 @@ def trigger_reanalysis_web_view(request, doc_id):
     run_contract_analysis_pipeline(doc.id)
     messages.success(request, f"Re-analysis completed for {doc.title}.")
     return redirect('document_detail', pk=doc.id)
+
